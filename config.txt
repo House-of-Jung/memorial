@@ -1,0 +1,5 @@
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile C:\Users\selis\Documents\coding\0_ssh\id_ed25519_work
+  IdentitiesOnly yes
