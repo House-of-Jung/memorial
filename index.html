@@ -563,32 +563,7 @@
             event.target.classList.add('active');
         }
 
-        function addMemory() {
-            const newMemory = prompt("추억을 작성해주세요:");
-            if (newMemory) {
-                const author = prompt("작성자 이름을 입력해주세요:");
-                if (author) {
-                    const memoriesSection = document.getElementById('memories');
-                    const currentDate = new Date().toISOString().split('T')[0];
-                    
-                    const memoryCard = document.createElement('div');
-                    memoryCard.className = 'memory-card';
-                    memoryCard.innerHTML = `
-                        <div class="memory-header">
-                            <div class="memory-author">${author}</div>
-                            <div class="memory-date">${currentDate}</div>
-                        </div>
-                        <div class="memory-content">${newMemory}</div>
-                    `;
-                    
-                    memoriesSection.appendChild(memoryCard);
-                    
-                    // 추억 나누기 탭으로 이동
-                    showSection('memories');
-                    document.querySelector('.nav-tab').click();
-                }
-            }
-        }
-    </script>
+       <button onclick="submitMemory()">추억 저장</button>   
+ </script>
 </body>
 </html>
