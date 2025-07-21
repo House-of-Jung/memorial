@@ -308,72 +308,6 @@
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  const supabaseUrl = 'https://apdrinsphtkeylefpybe.supabase.co'; // 대시보드에서 확인
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHJpbnNwaHRrZXlsZWZweWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMDMzNjYsImV4cCI6MjA2ODY3OTM2Nn0.QR3eEYTfpuf1quUARgkQi4lYEpQYK_a4acuF-iMaPhA'; // 대시보드 → Settings → API → Anon Key
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-  // ✅ 로그인 (간단히 이름만 입력)
-  async function login() {
-    const name = document.getElementById('loginName').value.trim();
-    if (!name) return alert('이름을 입력하세요.');
-    localStorage.setItem('userName', name);
-    currentUser = name;
-    document.getElementById('currentUser').textContent = name;
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('writeMemorySection').style.display = 'block';
-    loadMemories();
-  }
-
-  // ✅ 추억 저장
-  async function submitMemory() {
-    const text = document.getElementById('memoryTextarea').value.trim();
-    if (!text || !currentUser) return alert('내용을 입력하세요.');
-    const { error } = await supabase
-      .from('memories')
-      .insert([{ name: currentUser, content: text }]);
-    if (error) return alert('저장 실패: ' + error.message);
-    loadMemories();
-    document.getElementById('memoryTextarea').value = '';
-    alert('추억이 저장되었습니다.');
-  }
-
-  // ✅ 추억 불러오기
-  async function loadMemories() {
-    const { data, error } = await supabase
-      .from('memories')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) return alert('불러오기 실패: ' + error.message);
-    const container = document.getElementById('memoriesContainer');
-    container.innerHTML = '';
-    data.forEach(mem => {
-      const div = document.createElement('div');
-      div.className = 'memory-card';
-      div.innerHTML = `
-        <div class="memory-header">
-          <div class="memory-author">${mem.name}</div>
-          <div class="memory-date">${new Date(mem.created_at).toLocaleDateString('ko-KR')}</div>
-        </div>
-        <div class="memory-content">${mem.content}</div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  // ✅ 로그아웃
-  function logout() {
-    localStorage.removeItem('userName');
-    currentUser = null;
-    location.reload();
-  }
-
-  // ✅ 페이지 로드 시 자동 로그인
-  let currentUser = localStorage.getItem('userName');
-  if (currentUser) {
-    login(); // 바로 로그인 처리
-  }
-</script>
 </head>
 <body>
     <div class="container">
@@ -539,6 +473,76 @@
     </div>
 
     <script>
+
+
+  const supabaseUrl = 'https://apdrinsphtkeylefpybe.supabase.co'; // 대시보드에서 확인
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHJpbnNwaHRrZXlsZWZweWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMDMzNjYsImV4cCI6MjA2ODY3OTM2Nn0.QR3eEYTfpuf1quUARgkQi4lYEpQYK_a4acuF-iMaPhA'; // 대시보드 → Settings → API → Anon Key
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  // ✅ 로그인 (간단히 이름만 입력)
+  async function login() {
+    const name = document.getElementById('loginName').value.trim();
+    if (!name) return alert('이름을 입력하세요.');
+    localStorage.setItem('userName', name);
+    currentUser = name;
+    document.getElementById('currentUser').textContent = name;
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('writeMemorySection').style.display = 'block';
+    loadMemories();
+  }
+
+  // ✅ 추억 저장
+  async function submitMemory() {
+    const text = document.getElementById('memoryTextarea').value.trim();
+    if (!text || !currentUser) return alert('내용을 입력하세요.');
+    const { error } = await supabase
+      .from('memories')
+      .insert([{ name: currentUser, content: text }]);
+    if (error) return alert('저장 실패: ' + error.message);
+    loadMemories();
+    document.getElementById('memoryTextarea').value = '';
+    alert('추억이 저장되었습니다.');
+  }
+
+  // ✅ 추억 불러오기
+  async function loadMemories() {
+    const { data, error } = await supabase
+      .from('memories')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) return alert('불러오기 실패: ' + error.message);
+    const container = document.getElementById('memoriesContainer');
+    container.innerHTML = '';
+    data.forEach(mem => {
+      const div = document.createElement('div');
+      div.className = 'memory-card';
+      div.innerHTML = `
+        <div class="memory-header">
+          <div class="memory-author">${mem.name}</div>
+          <div class="memory-date">${new Date(mem.created_at).toLocaleDateString('ko-KR')}</div>
+        </div>
+        <div class="memory-content">${mem.content}</div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ✅ 로그아웃
+  function logout() {
+    localStorage.removeItem('userName');
+    currentUser = null;
+    location.reload();
+  }
+
+  // ✅ 페이지 로드 시 자동 로그인
+  let currentUser = localStorage.getItem('userName');
+  if (currentUser) {
+    login(); // 바로 로그인 처리
+  }
+
+
+
+
         function showSection(sectionId) {
             // 모든 섹션 숨기기
             const sections = document.querySelectorAll('.content-section');
