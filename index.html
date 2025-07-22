@@ -307,9 +307,6 @@
     </style>
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const supabase = supabase.createClient('https://apdrinsphtkeylefpybe.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwZHJpbnNwaHRrZXlsZWZweWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMDMzNjYsImV4cCI6MjA2ODY3OTM2Nn0.QR3eEYTfpuf1quUARgkQi4lYEpQYK_a4acuF-iMaPhA');
-</script>
 
 </head>
 <body>
@@ -498,59 +495,37 @@
         }
 
 async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-  return { data, error }
+  const response = await fetch('/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  return await response.json();
 }
 
 // 로그인
 async function signIn(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
-  })
-  return { data, error }
-}
-
-// 로그아웃
-async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  return { error }
-}
-
-
-
-document.getElementById("plusBtn").addEventListener("click", async () => {
-  const session = await supabase.auth.getSession();
-  if (!session.data.session) {
-    alert("로그인이 필요합니다.");
-    return;
-  }
-
-  const content = prompt("기억을 입력하세요:");
-  if (!content) return;
-
-  const user = session.data.session.user;
-
-  const res = await fetch("https://memorial-api.seliscos.workers.dev/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      token: session.data.session.access_token,
-      user_id: user.id,
-      content: content
-    })
+    password
   });
+  return { data, error };
+}
 
-  const json = await res.json();
-  if (json.error) {
-    alert("글 저장 실패");
-  } else {
-    alert("추억이 저장되었습니다!");
-  }
-});
+// 추억 저장 (인증 후)
+async function saveMemory(content) {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  const response = await fetch('/submit-memory', {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`
+    },
+    body: JSON.stringify({ content })
+  });
+  return await response.json();
+}
 
 
 
