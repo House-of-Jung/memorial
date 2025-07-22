@@ -287,6 +287,108 @@
             font-style: italic;
         }
 
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .auth-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
         @media (max-width: 768px) {
             .nav-tabs {
                 flex-direction: column;
@@ -303,13 +405,20 @@
             .photo-gallery {
                 grid-template-columns: 1fr;
             }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
         }
     </style>
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 </head>
 <body>
+    <div class="auth-status" id="authStatus">
+        <span id="authText">로그인이 필요합니다</span>
+        <button onclick="showAuthModal()" id="authBtn" class="btn" style="margin-left: 10px; padding: 5px 15px; font-size: 12px;">로그인</button>
+    </div>
+
     <div class="container">
         <header>
             <div class="profile-photo">
@@ -332,40 +441,42 @@
 
         <div id="memories" class="content-section active">
             <h2 class="section-title">소중한 추억들</h2>
-            
-            <div class="memory-card">
-                <div class="memory-header">
-                    <div class="memory-author">큰딸 영희</div>
-                    <div class="memory-date">2024년 1월 15일</div>
+            <div id="memoriesList">
+                <!-- 기존 추억들 -->
+                <div class="memory-card">
+                    <div class="memory-header">
+                        <div class="memory-author">큰딸 영희</div>
+                        <div class="memory-date">2024년 1월 15일</div>
+                    </div>
+                    <div class="memory-content">
+                        아버지께서 늘 새벽 5시에 일어나 마당을 쓸고 화분에 물을 주시던 모습이 생각납니다. 
+                        그 성실한 모습이 저에게는 가장 큰 가르침이었습니다. 
+                        특히 제가 어릴 때 다쳤을 때 등에 업고 병원까지 뛰어가시던 그 따뜻한 등이 그립습니다.
+                    </div>
                 </div>
-                <div class="memory-content">
-                    아버지께서 늘 새벽 5시에 일어나 마당을 쓸고 화분에 물을 주시던 모습이 생각납니다. 
-                    그 성실한 모습이 저에게는 가장 큰 가르침이었습니다. 
-                    특히 제가 어릴 때 다쳤을 때 등에 업고 병원까지 뛰어가시던 그 따뜻한 등이 그립습니다.
-                </div>
-            </div>
 
-            <div class="memory-card">
-                <div class="memory-header">
-                    <div class="memory-author">아들 철수</div>
-                    <div class="memory-date">2024년 1월 20일</div>
+                <div class="memory-card">
+                    <div class="memory-header">
+                        <div class="memory-author">아들 철수</div>
+                        <div class="memory-date">2024년 1월 20일</div>
+                    </div>
+                    <div class="memory-content">
+                        아버지의 손맛을 잊을 수 없습니다. 
+                        명절 때마다 직접 만드시던 전과 나물들, 그리고 손자들에게 용돈을 슬쩍 쥐어주시며 
+                        "엄마한테는 비밀"이라고 웃으시던 장난기 어린 모습이 그립습니다.
+                    </div>
                 </div>
-                <div class="memory-content">
-                    아버지의 손맛을 잊을 수 없습니다. 
-                    명절 때마다 직접 만드시던 전과 나물들, 그리고 손자들에게 용돈을 슬쩍 쥐어주시며 
-                    "엄마한테는 비밀"이라고 웃으시던 장난기 어린 모습이 그립습니다.
-                </div>
-            </div>
 
-            <div class="memory-card">
-                <div class="memory-header">
-                    <div class="memory-author">손자 민수</div>
-                    <div class="memory-date">2024년 1월 25일</div>
-                </div>
-                <div class="memory-content">
-                    할아버지가 저에게 장기를 가르쳐 주시던 일요일 오후들이 그립습니다. 
-                    처음에는 계속 져서 재미없었는데, 할아버지가 "지는 것도 배우는 거야"라고 말씀하시며 
-                    끝까지 함께 해주셨어요. 그 인내심과 사랑을 평생 기억하겠습니다.
+                <div class="memory-card">
+                    <div class="memory-header">
+                        <div class="memory-author">손자 민수</div>
+                        <div class="memory-date">2024년 1월 25일</div>
+                    </div>
+                    <div class="memory-content">
+                        할아버지가 저에게 장기를 가르쳐 주시던 일요일 오후들이 그립습니다. 
+                        처음에는 계속 져서 재미없었는데, 할아버지가 "지는 것도 배우는 거야"라고 말씀하시며 
+                        끝까지 함께 해주셨어요. 그 인내심과 사랑을 평생 기억하겠습니다.
+                    </div>
                 </div>
             </div>
         </div>
@@ -465,70 +576,334 @@
             </div>
         </div>
 
-<button id="plusBtn" class="add-memory-btn">+</button>
+        <button id="plusBtn" class="add-memory-btn">+</button>
 
         <div class="footer">
             할아버지를 영원히 기억하며 사랑합니다.
         </div>
     </div>
 
+    <!-- 인증 모달 -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('authModal')">&times;</span>
+            <h2 id="authTitle">로그인</h2>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">이메일:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn" id="authSubmitBtn">로그인</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleAuthMode()">회원가입</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 추억 추가 모달 -->
+    <div id="memoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('memoryModal')">&times;</span>
+            <h2>추억 나누기</h2>
+            <form id="memoryForm">
+                <div class="form-group">
+                    <label for="authorName">작성자:</label>
+                    <input type="text" id="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="memoryContent">추억:</label>
+                    <textarea id="memoryContent" placeholder="할아버지와의 소중한 추억을 나눠주세요..." required></textarea>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn">저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('memoryModal')">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Cloudflare Workers API 엔드포인트 (실제 URL로 변경 필요)
+        const API_BASE_URL = 'https://memorial-api.seliscos.workers.dev';
+        
+        let currentUser = null;
+        let isSignUpMode = false;
+
+        // 페이지 로드 시 인증 상태 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadMemories();
+        });
 
         function showSection(sectionId) {
-            // 모든 섹션 숨기기
             const sections = document.querySelectorAll('.content-section');
             sections.forEach(section => {
                 section.classList.remove('active');
             });
             
-            // 모든 탭 비활성화
             const tabs = document.querySelectorAll('.nav-tab');
             tabs.forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // 선택된 섹션 표시
             document.getElementById(sectionId).classList.add('active');
-            
-            // 해당 탭 활성화
             event.target.classList.add('active');
         }
 
-async function signUp(email, password) {
-  const response = await fetch('/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  return await response.json();
-}
+        function checkAuthStatus() {
+            // 로컬 스토리지에서 토큰 확인 (실제로는 쿠키나 다른 방식 사용 권장)
+            const token = localStorage.getItem('auth_token');
+            const userEmail = localStorage.getItem('user_email');
+            
+            if (token && userEmail) {
+                updateAuthUI(true, userEmail);
+                currentUser = { token, email: userEmail };
+            } else {
+                updateAuthUI(false);
+            }
+        }
 
-// 로그인
-async function signIn(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-  return { data, error };
-}
+        function updateAuthUI(isLoggedIn, email = '') {
+            const authText = document.getElementById('authText');
+            const authBtn = document.getElementById('authBtn');
+            
+            if (isLoggedIn) {
+                authText.textContent = `안녕하세요, ${email}님`;
+                authBtn.textContent = '로그아웃';
+                authBtn.onclick = logout;
+            } else {
+                authText.textContent = '로그인이 필요합니다';
+                authBtn.textContent = '로그인';
+                authBtn.onclick = showAuthModal;
+            }
+        }
 
-// 추억 저장 (인증 후)
-async function saveMemory(content) {
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  const response = await fetch('/submit-memory', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
-    },
-    body: JSON.stringify({ content })
-  });
-  return await response.json();
-}
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
 
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            
+            if (isSignUpMode) {
+                title.textContent = '회원가입';
+                submitBtn.textContent = '회원가입';
+            } else {
+                title.textContent = '로그인';
+                submitBtn.textContent = '로그인';
+            }
+        }
 
+        // 인증 폼 처리
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('authSubmitBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리중...';
+            
+            try {
+                if (isSignUpMode) {
+                    await signUp(email, password);
+                } else {
+                    await signIn(email, password);
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUpMode ? '회원가입' : '로그인';
+            }
+        });
+
+        // 회원가입
+        async function signUp(email, password) {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '회원가입에 실패했습니다.');
+            }
+            
+            alert(data.message || '이메일 인증 링크가 발송되었습니다.');
+            closeModal('authModal');
+            toggleAuthMode(); // 다시 로그인 모드로 변경
+        }
+
+        // 로그인 (Cloudflare Workers를 통해 Supabase와 통신)
+        async function signIn(email, password) {
+            const response = await fetch(`${API_BASE_URL}/signin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '로그인에 실패했습니다.');
+            }
+            
+            // 토큰 저장
+            localStorage.setItem('auth_token', data.access_token);
+            localStorage.setItem('user_email', email);
+            
+            currentUser = { token: data.access_token, email };
+            updateAuthUI(true, email);
+            closeModal('authModal');
+            
+            alert('로그인 성공!');
+        }
+
+        // 로그아웃
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            currentUser = null;
+            updateAuthUI(false);
+            alert('로그아웃되었습니다.');
+        }
+
+        // + 버튼 클릭 시 추억 추가 모달 표시
+        document.getElementById('plusBtn').addEventListener('click', function() {
+            if (!currentUser) {
+                alert('추억을 나누려면 먼저 로그인해주세요.');
+                showAuthModal();
+                return;
+            }
+            document.getElementById('memoryModal').style.display = 'block';
+        });
+
+        // 추억 저장
+        document.getElementById('memoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+            
+            const author = document.getElementById('authorName').value;
+            const content = document.getElementById('memoryContent').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '저장 중...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/submit-memory`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify({ 
+                        content,
+                        author 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '추억 저장에 실패했습니다.');
+                }
+                
+                // 새로운 추억을 화면에 추가
+                addMemoryToUI(author, content, new Date());
+                
+                // 폼 초기화
+                document.getElementById('memoryForm').reset();
+                closeModal('memoryModal');
+                
+                alert('추억이 저장되었습니다.');
+                
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '저장';
+            }
+        });
+
+        // 추억을 화면에 추가하는 함수
+        function addMemoryToUI(author, content, date) {
+            const memoriesList = document.getElementById('memoriesList');
+            const memoryCard = document.createElement('div');
+            memoryCard.className = 'memory-card';
+            
+            const formattedDate = date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            memoryCard.innerHTML = `
+                <div class="memory-header">
+                    <div class="memory-author">${author}</div>
+                    <div class="memory-date">${formattedDate}</div>
+                </div>
+                <div class="memory-content">${content}</div>
+            `;
+            
+            // 새로운 추억을 맨 위에 추가
+            memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+        }
+
+        // 서버에서 추억 목록 불러오기
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/memories`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const memoriesList = document.getElementById('memoriesList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.memories.forEach(memory => {
+                        addMemoryToUI(
+                            memory.author || memory.email, 
+                            memory.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('추억 로드 실패:', error);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('memoryModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === memoryModal) {
+                memoryModal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
