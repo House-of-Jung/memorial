@@ -468,7 +468,7 @@
             </div>
         </div>
 
-<button id="plusBtn" class="add-memory-btn">+</button>
+        <button class="add-memory-btn" onclick="scrollToMemories()">+</button>
 
         <div class="footer">
             할아버지를 영원히 기억하며 사랑합니다.
@@ -477,50 +477,14 @@
 
     <script>
 
-        function showSection(sectionId) {
-            // 모든 섹션 숨기기
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // 모든 탭 비활성화
-            const tabs = document.querySelectorAll('.nav-tab');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // 선택된 섹션 표시
-            document.getElementById(sectionId).classList.add('active');
-            
-            // 해당 탭 활성화
-            event.target.classList.add('active');
-        }
-
-async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-  return { data, error }
-}
-
-// 로그인
 async function signIn(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  return { data, error }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) alert("로그인 실패");
 }
 
-// 로그아웃
 async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  return { error }
+  await supabase.auth.signOut();
 }
-
-
 
 document.getElementById("plusBtn").addEventListener("click", async () => {
   const session = await supabase.auth.getSession();
@@ -534,7 +498,7 @@ document.getElementById("plusBtn").addEventListener("click", async () => {
 
   const user = session.data.session.user;
 
-  const res = await fetch("https://memorial-api.seliscos.workers.dev/submit", {
+  const res = await fetch("https://memorial-api.your-username.workers.dev/submit", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -553,7 +517,54 @@ document.getElementById("plusBtn").addEventListener("click", async () => {
 });
 
 
+        async function submitMemory() {
+            const text = document.getElementById('memoryTextarea').value.trim();
+            if (!text || !currentUser) return alert('내용을 입력하세요.');
+            const { error } = await supabase
+                .from('memories')
+                .insert([{ name: currentUser, content: text }]);
+            if (error) return alert('저장 실패: ' + error.message);
+            loadMemories();
+            document.getElementById('memoryTextarea').value = '';
+            alert('추억이 저장되었습니다.');
+        }
 
+        async function loadMemories() {
+            const { data, error } = await supabase
+                .from('memories')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) return alert('불러오기 실패: ' + error.message);
+            const container = document.getElementById('memoriesContainer');
+            container.innerHTML = '';
+            data.forEach(mem => {
+                const div = document.createElement('div');
+                div.className = 'memory-card';
+                div.innerHTML = `
+                    <div class="memory-header">
+                        <div class="memory-author">${mem.name}</div>
+                        <div class="memory-date">${new Date(mem.created_at).toLocaleDateString('ko-KR')}</div>
+                    </div>
+                    <div class="memory-content">${mem.content}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('userName');
+            currentUser = null;
+            location.reload();
+        }
+
+        function scrollToMemories() {
+            document.getElementById('memories').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 페이지 로드 시 자동 로그인
+        if (currentUser) {
+            login(); // 바로 로그인 처리
+        }
     </script>
 </body>
 </html>
