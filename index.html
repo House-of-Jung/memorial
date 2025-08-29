@@ -933,7 +933,19 @@
             }
         }
 
-document.getElementById('plusBtn1').addEventListener('click', async function(e) {
+        // + 버튼 클릭 시 사진 추가 모달 표시
+        document.getElementById('plusBtn1').addEventListener('click', function() {
+            if (!currentUser) {
+                alert('사진을 저장하려면 먼저 로그인해주세요.');
+                showAuthModal();
+                return;
+            }
+            document.getElementById('photoModal').style.display = 'block';
+        });
+
+        // 사진 저장
+
+document.getElementById('photoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     if (!currentUser) {
