@@ -933,6 +933,17 @@
             }
         }
 
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);  // data:image/png;base64,... 형태
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+
+
         // + 버튼 클릭 시 사진 추가 모달 표시
         document.getElementById('plusBtn1').addEventListener('click', function() {
             if (!currentUser) {
@@ -962,23 +973,28 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     submitBtn.textContent = '저장 중...';
     
     try {
-        // FormData 객체 생성 (JSON 대신 사용)
-        const formData = new FormData();
-        formData.append('author', author);
-        formData.append('content', content);
+        let base64Image = null;
         if (imageFile) {
-            formData.append('image', imageFile);
+            base64Image = await fileToBase64(imageFile); 
         }
-        
-        const response = await fetch(`${API_BASE_URL}/submit-photo`, {
+
+        const response = await fetch(`${API_BASE_URL}/upload-photo`, {
             method: 'POST',
-            headers: { 
+            headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentUser.token}`
-                // ⚠️ Content-Type 은 자동으로 multipart/form-data 로 세팅됨 (직접 넣지 말기!)
             },
-            body: formData
+            body: JSON.stringify({
+                author,
+                content,
+                image: base64Image  // 이미지 문자열로 전송
+            })
         });
         
+
+
+
+
         const data = await response.json();
         
         if (!response.ok) {
