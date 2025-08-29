@@ -966,7 +966,7 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     const author = document.getElementById('authorName').value;
     const content = document.getElementById('photoContent').value;
-    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
+    const imageData = document.getElementById('photo-item').files[0];  // 파일 선택된 것 가져오기
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
