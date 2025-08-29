@@ -639,7 +639,7 @@
                     <input type="text" id="authorName" required>
                 </div>
                 <div class="form-group">
-                    <label for="photoContent">추억:</label>
+                    <label for="photoContent">설명:</label>
                     <textarea id="photoContent" placeholder="할아버지와의 소중한 추억을 나눠주세요..." required></textarea>
                 </div>
                 <div class="form-group">
@@ -966,7 +966,7 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     const author = document.getElementById('authorName').value;
     const content = document.getElementById('photoContent').value;
-    const imageFile = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
+    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
@@ -974,8 +974,8 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     try {
         let base64Image = null;
-        if (imageFile) {
-            base64Image = await fileToBase64(imageFile); 
+        if (imageData) {
+            base64Image = await fileToBase64(imageData); 
         }
 
         const response = await fetch(`${API_BASE_URL}/upload-photo`, {
@@ -985,9 +985,10 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
                 'Authorization': `Bearer ${currentUser.token}`
             },
             body: JSON.stringify({
-                author,
-                content,
-                image: base64Image  // 이미지 문자열로 전송
+                imageData: base64Image,  // 이미지 문자열로 전송
+                fileName: imageData.name,
+                caption: content
+                
             })
         });
         
