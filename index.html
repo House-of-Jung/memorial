@@ -577,6 +577,7 @@
         </div>
 
         <button id="plusBtn" class="add-memory-btn">+</button>
+        <button id="plusBtn1" class="add-memory-btn">+</button>
 
         <div class="footer">
             할아버지를 영원히 기억하며 사랑합니다.
@@ -626,6 +627,33 @@
             </form>
         </div>
     </div>
+
+    <!-- 사진 추가 모달 -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('photoModal')">&times;</span>
+            <h2>사진 업로드</h2>
+            <form id="photoForm">
+                <div class="form-group">
+                    <label for="authorName">작성자:</label>
+                    <input type="text" id="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="photoContent">추억:</label>
+                    <textarea id="photoContent" placeholder="할아버지와의 소중한 추억을 나눠주세요..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <!-- 사진 업로드 추가 -->
+                    <input type="file" id="photoImage" name="image" accept="image/*">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn">저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('photoModal')">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <script>
         // Cloudflare Workers API 엔드포인트 (실제 URL로 변경 필요)
@@ -904,6 +932,125 @@
                 memoryModal.style.display = 'none';
             }
         }
+
+document.getElementById('photoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!currentUser) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+    
+    const author = document.getElementById('authorName').value;
+    const content = document.getElementById('photoContent').value;
+    const imageFile = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '저장 중...';
+    
+    try {
+        // FormData 객체 생성 (JSON 대신 사용)
+        const formData = new FormData();
+        formData.append('author', author);
+        formData.append('content', content);
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/submit-photo`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${currentUser.token}`
+                // ⚠️ Content-Type 은 자동으로 multipart/form-data 로 세팅됨 (직접 넣지 말기!)
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || '사진 저장에 실패했습니다.');
+        }
+        
+        // UI에 추가 (이미지 URL을 서버가 반환했다고 가정)
+        addPhotoToUI(author, content, new Date(), data.imageUrl);
+        
+        document.getElementById('photoForm').reset();
+        closeModal('photoModal');
+        alert('사진이 저장되었습니다.');
+        
+    } catch (error) {
+        alert('오류가 발생했습니다: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '저장';
+    }
+});
+
+// 사진을 화면에 추가하는 함수
+function addPhotoToUI(author, content, date, imageUrl=null) {
+    const photoList = document.getElementById('photoList');
+    const memoryCard = document.createElement('div');
+    memoryCard.className = 'photo-card';
+    
+    const formattedDate = date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    photoCard.innerHTML = `
+        <div class="photo-header">
+            <div class="photo-author">${author}</div>
+            <div class="photo-date">${formattedDate}</div>
+        </div>
+        <div class="photo-content">${content}</div>
+        ${imageUrl ? `<div class="memory-image"><img src="${imageUrl}" alt="추억 사진"></div>` : ''}
+    `;
+    
+    photoList.insertBefore(photoCard, photoList.firstChild);
+}
+
+
+        // 서버에서 추억 목록 불러오기
+        async function loadPhoto() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/photo`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const photo = document.getElementById('photoList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.photo.forEach(photo => {
+                        addMPhotoToUI(
+                            photo.author || photo.email, 
+                            photo.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('사진 로드 실패:', error);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('photoModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === photoModal) {
+                photoModal.style.display = 'none';
+            }
+        }
+
+
+
     </script>
 </body>
 </html>
