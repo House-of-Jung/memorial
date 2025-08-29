@@ -985,9 +985,11 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
                 'Authorization': `Bearer ${currentUser.token}`
             },
             body: JSON.stringify({
+                user_id: currentUser.id, 
                 imageData: base64Image,  // 이미지 문자열로 전송
                 fileName: imageData.name,
-                caption: content
+                caption: content,
+                uploader_name: author
                 
             })
         });
