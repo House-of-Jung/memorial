@@ -280,6 +280,28 @@
             transform: scale(1.1);
         }
 
+        .add-photo-btn {
+            position: fixed;
+            bottom: 60px;
+            right: 60px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .add-photo-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+
         .footer {
             text-align: center;
             padding: 30px;
@@ -455,29 +477,7 @@
                     </div>
                 </div>
 
-                <div class="memory-card">
-                    <div class="memory-header">
-                        <div class="memory-author">아들 철수</div>
-                        <div class="memory-date">2024년 1월 20일</div>
-                    </div>
-                    <div class="memory-content">
-                        아버지의 손맛을 잊을 수 없습니다. 
-                        명절 때마다 직접 만드시던 전과 나물들, 그리고 손자들에게 용돈을 슬쩍 쥐어주시며 
-                        "엄마한테는 비밀"이라고 웃으시던 장난기 어린 모습이 그립습니다.
-                    </div>
-                </div>
 
-                <div class="memory-card">
-                    <div class="memory-header">
-                        <div class="memory-author">손자 민수</div>
-                        <div class="memory-date">2024년 1월 25일</div>
-                    </div>
-                    <div class="memory-content">
-                        할아버지가 저에게 장기를 가르쳐 주시던 일요일 오후들이 그립습니다. 
-                        처음에는 계속 져서 재미없었는데, 할아버지가 "지는 것도 배우는 거야"라고 말씀하시며 
-                        끝까지 함께 해주셨어요. 그 인내심과 사랑을 평생 기억하겠습니다.
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -577,7 +577,7 @@
         </div>
 
         <button id="plusBtn" class="add-memory-btn">+</button>
-        <button id="plusBtn1" class="add-memory-btn">+</button>
+        <button id="plusBtn1" class="add-photo-btn">-</button>
 
         <div class="footer">
             할아버지를 영원히 기억하며 사랑합니다.
@@ -933,7 +933,7 @@
             }
         }
 
-document.getElementById('photoForm').addEventListener('submit', async function(e) {
+document.getElementById('plusBtn1').addEventListener('click', async function(e) {
     e.preventDefault();
     
     if (!currentUser) {
