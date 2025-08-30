@@ -966,7 +966,7 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     const author = document.getElementById('authorName').value;
     const content = document.getElementById('photoContent').value;
-    const imageData = document.getElementById('photo-item').files[0];  // 파일 선택된 것 가져오기
+    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
@@ -1043,7 +1043,7 @@ function addPhotoToUI(author, content, date, imageUrl=null) {
 }
 
 
-        // 서버에서 추억 목록 불러오기
+        // 서버에서 사진 목록 불러오기
         async function loadPhoto() {
             try {
                 const response = await fetch(`${API_BASE_URL}/photo`);
