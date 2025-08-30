@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할아버지를 그리며</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid #ddd;
+            margin: 0 auto 20px;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+            background: #f0f0f0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .dates {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.1em;
+            color: #34495e;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab {
+            padding: 12px 30px;
+            margin: 0 5px;
+            background: #ecf0f1;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .nav-tab:hover {
+            background: #2980b9;
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .memory-card {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .memory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .memory-author {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .memory-date {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .memory-content {
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-caption {
+            padding: 15px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .life-story {
+            columns: 2;
+            column-gap: 30px;
+            text-align: justify;
+        }
+
+        .life-story p {
+            margin-bottom: 15px;
+            break-inside: avoid;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3498db;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3498db;
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .timeline-content {
+            margin-top: 5px;
+            color: #34495e;
+        }
+
+        .add-memory-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .add-memory-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .add-photo-btn {
+            position: fixed;
+            bottom: 60px;
+            right: 60px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .add-photo-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .auth-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                margin: 5px 0;
+            }
+            
+            .life-story {
+                columns: 1;
+            }
+            
+            .photo-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-status" id="authStatus">
+        <span id="authText">로그인이 필요합니다</span>
+        <button onclick="showAuthModal()" id="authBtn" class="btn" style="margin-left: 10px; padding: 5px 15px; font-size: 12px;">로그인</button>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="profile-photo">
+                <img src="images/grandfather.png" alt="할아버지 사진" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="profile-photo-placeholder" style="display: none;">할아버지 사진</div>
+            </div>
+            <h1>할아버지를 그리며</h1>
+            <div class="dates">1930년 1월 1일 ~ 2024년 12월 31일</div>
+            <div class="quote">
+                "가족을 사랑하고, 이웃을 도우며, 성실하게 살아가는 것이 가장 큰 가치입니다."
+            </div>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('memories')">추억 나누기</button>
+            <button class="nav-tab" onclick="showSection('photos')">사진 앨범</button>
+            <button class="nav-tab" onclick="showSection('life')">생애 이야기</button>
+            <button class="nav-tab" onclick="showSection('timeline')">연대기</button>
+        </div>
+
+        <div id="memories" class="content-section active">
+            <h2 class="section-title">소중한 추억들</h2>
+            <div id="memoriesList">
+                <!-- 기존 추억들 -->
+                <div class="memory-card">
+                    <div class="memory-header">
+                        <div class="memory-author">큰딸 영희</div>
+                        <div class="memory-date">2024년 1월 15일</div>
+                    </div>
+                    <div class="memory-content">
+                        아버지께서 늘 새벽 5시에 일어나 마당을 쓸고 화분에 물을 주시던 모습이 생각납니다. 
+                        그 성실한 모습이 저에게는 가장 큰 가르침이었습니다. 
+                        특히 제가 어릴 때 다쳤을 때 등에 업고 병원까지 뛰어가시던 그 따뜻한 등이 그립습니다.
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div id="photos" class="content-section">
+            <h2 class="section-title">사진 앨범</h2>
+            <div class="photo-gallery">
+                <div class="photo-item">
+                    <div class="photo-placeholder">
+                        <img src="images/family1.jpg" alt="1980년 추석 가족사진" onerror="this.style.display='none'; this.parentElement.innerHTML='가족사진 1';">
+                    </div>
+                    <div class="photo-caption">1980년 추석 가족사진</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">
+                        <img src="images/fishing.jpg" alt="손자와 함께한 낚시" onerror="this.style.display='none'; this.parentElement.innerHTML='가족사진 2';">
+                    </div>
+                    <div class="photo-caption">손자와 함께한 낚시 (2010년)</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">
+                        <img src="images/anniversary.jpg" alt="결혼 50주년 기념사진" onerror="this.style.display='none'; this.parentElement.innerHTML='가족사진 3';">
+                    </div>
+                    <div class="photo-caption">결혼 50주년 기념사진</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">
+                        <img src="images/garden.jpg" alt="텃밭에서" onerror="this.style.display='none'; this.parentElement.innerHTML='가족사진 4';">
+                    </div>
+                    <div class="photo-caption">텃밭에서 (2020년)</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="life" class="content-section">
+            <h2 class="section-title">생애 이야기</h2>
+            <div class="life-story">
+                <p>할아버지는 1930년 경상북도 안동에서 태어나셨습니다. 어려운 시절을 보내시면서도 항상 긍정적인 마음가짐으로 가족을 돌보셨습니다.</p>
+                
+                <p>젊은 시절 서울로 상경하여 작은 공장에서 일하시며 가족의 생계를 책임지셨습니다. 그 후 꾸준히 노력하여 자그마한 사업을 시작하셨고, 성실함과 정직함으로 많은 사람들의 신뢰를 받으셨습니다.</p>
+                
+                <p>1955년 할머니와 결혼하신 후 슬하에 2남 1녀를 두셨습니다. 자녀들의 교육에 남다른 관심을 보이셨고, 어떤 어려움이 있어도 공부할 수 있도록 뒷받침해 주셨습니다.</p>
+                
+                <p>은퇴 후에는 작은 텃밭을 가꾸시며 여유로운 노후를 보내셨습니다. 동네 어르신들과 함께 게이트볼을 즐기시고, 손자 손녀들과 시간을 보내는 것을 가장 좋아하셨습니다.</p>
+                
+                <p>평생을 남을 위해 살아오신 할아버지는 2024년 12월 31일, 가족들이 지켜보는 가운데 편안히 영면에 드셨습니다.</p>
+            </div>
+        </div>
+
+        <div id="timeline" class="content-section">
+            <h2 class="section-title">인생 연대기</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">1930년</div>
+                    <div class="timeline-content">경상북도 안동에서 출생</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1948년</div>
+                    <div class="timeline-content">서울 상경, 공장 취업</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1955년</div>
+                    <div class="timeline-content">할머니와 결혼</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1956년</div>
+                    <div class="timeline-content">장남 철수 출생</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1958년</div>
+                    <div class="timeline-content">장녀 영희 출생</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1960년</div>
+                    <div class="timeline-content">차남 수현 출생</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1965년</div>
+                    <div class="timeline-content">개인 사업 시작</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1985년</div>
+                    <div class="timeline-content">첫 손자 민수 출생</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">1995년</div>
+                    <div class="timeline-content">사업 은퇴</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2005년</div>
+                    <div class="timeline-content">결혼 50주년 금혼식</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2024년</div>
+                    <div class="timeline-content">향년 94세로 별세</div>
+                </div>
+            </div>
+        </div>
+
+        <button id="plusBtn" class="add-memory-btn">+</button>
+        <button id="plusBtn1" class="add-photo-btn">-</button>
+
+        <div class="footer">
+            할아버지를 영원히 기억하며 사랑합니다.
+        </div>
+    </div>
+
+    <!-- 인증 모달 -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('authModal')">&times;</span>
+            <h2 id="authTitle">로그인</h2>
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">이메일:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn" id="authSubmitBtn">로그인</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleAuthMode()">회원가입</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 추억 추가 모달 -->
+    <div id="memoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('memoryModal')">&times;</span>
+            <h2>추억 나누기</h2>
+            <form id="memoryForm">
+                <div class="form-group">
+                    <label for="authorName">작성자:</label>
+                    <input type="text" id="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="memoryContent">추억:</label>
+                    <textarea id="memoryContent" placeholder="할아버지와의 소중한 추억을 나눠주세요..." required></textarea>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn">저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('memoryModal')">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 사진 추가 모달 -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('photoModal')">&times;</span>
+            <h2>사진 업로드</h2>
+            <form id="photoForm">
+                <div class="form-group">
+                    <label for="authorName">작성자:</label>
+                    <input type="text" id="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="photoContent">설명:</label>
+                    <textarea id="photoContent" placeholder="할아버지와의 소중한 추억을 나눠주세요..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <!-- 사진 업로드 추가 -->
+                    <input type="file" id="photoImage" name="image" accept="image/*">
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="btn">저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('photoModal')">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // Cloudflare Workers API 엔드포인트 (실제 URL로 변경 필요)
+        const API_BASE_URL = 'https://memorial-api.seliscos.workers.dev';
+        
+        let currentUser = null;
+        let isSignUpMode = false;
+
+        // 페이지 로드 시 인증 상태 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadMemories();
+        });
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function checkAuthStatus() {
+            // 로컬 스토리지에서 토큰 확인 (실제로는 쿠키나 다른 방식 사용 권장)
+            const token = localStorage.getItem('auth_token');
+            const userEmail = localStorage.getItem('user_email');
+            
+            if (token && userEmail) {
+                updateAuthUI(true, userEmail);
+                currentUser = { token, email: userEmail };
+            } else {
+                updateAuthUI(false);
+            }
+        }
+
+        function updateAuthUI(isLoggedIn, email = '') {
+            const authText = document.getElementById('authText');
+            const authBtn = document.getElementById('authBtn');
+            
+            if (isLoggedIn) {
+                authText.textContent = `안녕하세요, ${email}님`;
+                authBtn.textContent = '로그아웃';
+                authBtn.onclick = logout;
+            } else {
+                authText.textContent = '로그인이 필요합니다';
+                authBtn.textContent = '로그인';
+                authBtn.onclick = showAuthModal;
+            }
+        }
+
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            
+            if (isSignUpMode) {
+                title.textContent = '회원가입';
+                submitBtn.textContent = '회원가입';
+            } else {
+                title.textContent = '로그인';
+                submitBtn.textContent = '로그인';
+            }
+        }
+
+        // 인증 폼 처리
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('authSubmitBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리중...';
+            
+            try {
+                if (isSignUpMode) {
+                    await signUp(email, password);
+                } else {
+                    await signIn(email, password);
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUpMode ? '회원가입' : '로그인';
+            }
+        });
+
+        // 회원가입
+        async function signUp(email, password) {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '회원가입에 실패했습니다.');
+            }
+            
+            alert(data.message || '이메일 인증 링크가 발송되었습니다.');
+            closeModal('authModal');
+            toggleAuthMode(); // 다시 로그인 모드로 변경
+        }
+
+        // 로그인 (Cloudflare Workers를 통해 Supabase와 통신)
+        async function signIn(email, password) {
+            const response = await fetch(`${API_BASE_URL}/signin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '로그인에 실패했습니다.');
+            }
+            
+            // 토큰 저장
+            localStorage.setItem('auth_token', data.access_token);
+            localStorage.setItem('user_email', email);
+            
+            currentUser = { token: data.access_token, email };
+            updateAuthUI(true, email);
+            closeModal('authModal');
+            
+            alert('로그인 성공!');
+        }
+
+        // 로그아웃
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            currentUser = null;
+            updateAuthUI(false);
+            alert('로그아웃되었습니다.');
+        }
+
+        // + 버튼 클릭 시 추억 추가 모달 표시
+        document.getElementById('plusBtn').addEventListener('click', function() {
+            if (!currentUser) {
+                alert('추억을 나누려면 먼저 로그인해주세요.');
+                showAuthModal();
+                return;
+            }
+            document.getElementById('memoryModal').style.display = 'block';
+        });
+
+        // 추억 저장
+        document.getElementById('memoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+            
+            const author = document.getElementById('authorName').value;
+            const content = document.getElementById('memoryContent').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '저장 중...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/submit-memory`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify({ 
+                        content,
+                        author 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '추억 저장에 실패했습니다.');
+                }
+                
+                // 새로운 추억을 화면에 추가
+                addMemoryToUI(author, content, new Date());
+                
+                // 폼 초기화
+                document.getElementById('memoryForm').reset();
+                closeModal('memoryModal');
+                
+                alert('추억이 저장되었습니다.');
+                
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '저장';
+            }
+        });
+
+        // 추억을 화면에 추가하는 함수
+        function addMemoryToUI(author, content, date) {
+            const memoriesList = document.getElementById('memoriesList');
+            const memoryCard = document.createElement('div');
+            memoryCard.className = 'memory-card';
+            
+            const formattedDate = date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            memoryCard.innerHTML = `
+                <div class="memory-header">
+                    <div class="memory-author">${author}</div>
+                    <div class="memory-date">${formattedDate}</div>
+                </div>
+                <div class="memory-content">${content}</div>
+            `;
+            
+            // 새로운 추억을 맨 위에 추가
+            memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+        }
+
+        // 서버에서 추억 목록 불러오기
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/memories`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const memoriesList = document.getElementById('memoriesList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.memories.forEach(memory => {
+                        addMemoryToUI(
+                            memory.author || memory.email, 
+                            memory.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('추억 로드 실패:', error);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('memoryModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === memoryModal) {
+                memoryModal.style.display = 'none';
+            }
+        }
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);  // data:image/png;base64,... 형태
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+
+
+        // + 버튼 클릭 시 사진 추가 모달 표시
+        document.getElementById('plusBtn1').addEventListener('click', function() {
+            if (!currentUser) {
+                alert('사진을 저장하려면 먼저 로그인해주세요.');
+                showAuthModal();
+                return;
+            }
+            document.getElementById('photoModal').style.display = 'block';
+        });
+
+        // 사진 저장
+
+document.getElementById('photoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!currentUser) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+    
+    const author = document.getElementById('authorName').value;
+    const content = document.getElementById('photoContent').value;
+    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '저장 중...';
+    
+    try {
+        let base64Image = null;
+        if (imageData) {
+            base64Image = await fileToBase64(imageData); 
+        }
+
+        const response = await fetch(`${API_BASE_URL}/upload-photo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}`
+            },
+            body: JSON.stringify({
+                imageData: base64Image,  // 이미지 문자열로 전송
+                fileName: imageData.name,
+                caption: content,
+                uploader_name: author
+                
+            })
+        });
+        
+
+
+
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || '사진 저장에 실패했습니다.');
+        }
+        
+        // UI에 추가 (이미지 URL을 서버가 반환했다고 가정)
+        addPhotoToUI(author, content, new Date(), data.imageUrl);
+        
+        document.getElementById('photoForm').reset();
+        closeModal('photoModal');
+        alert('사진이 저장되었습니다.');
+        
+    } catch (error) {
+        alert('오류가 발생했습니다: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '저장';
+    }
+});
+
+// 사진을 화면에 추가하는 함수
+function addPhotoToUI(author, content, date, imageUrl=null) {
+    const photoList = document.getElementById('photo-gallery');
+    const photoCard = document.createElement('div');
+    photoCard.className = 'photo-item';
+    
+    const formattedDate = date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    photoCard.innerHTML = `
+        <div class="photo-placeholder">
+
+
+        <div class="photo-header">
+            <div class="photo-author">${author}</div>
+            <div class="photo-date">${formattedDate}</div>
+        </div>
+        <div class="photo-content">${content}</div>
+        ${imageUrl ? `<div class="memory-image"><img src="${imageUrl}" alt="추억 사진"></div>` : ''}
+    `;
+    
+    photoList.insertBefore(photoCard, photoList.firstChild);
+}
+
+
+        // 서버에서 사진 목록 불러오기
+        async function loadPhoto() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/photo`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const photo = document.getElementById('photoList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.photo.forEach(photo => {
+                        addMPhotoToUI(
+                            photo.author || photo.email, 
+                            photo.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('사진 로드 실패:', error);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('photoModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === photoModal) {
+                photoModal.style.display = 'none';
+            }
+        }
+
+
+
+    </script>
+<script src="photo-gallery.js"></script>
+</body>
+</html>

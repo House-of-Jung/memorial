@@ -1,0 +1,122 @@
+        // + 버튼 클릭 시 추억 추가 모달 표시
+        document.getElementById('plusBtn').addEventListener('click', function() {
+            if (!currentUser) {
+                alert('추억을 나누려면 먼저 로그인해주세요.');
+                showAuthModal();
+                return;
+            }
+            document.getElementById('memoryModal').style.display = 'block';
+        });
+
+        // 추억 저장
+        document.getElementById('memoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+            
+            const author = document.getElementById('authorName').value;
+            const content = document.getElementById('memoryContent').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '저장 중...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/submit-memory`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentUser.token}`
+                    },
+                    body: JSON.stringify({ 
+                        content,
+                        author 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '추억 저장에 실패했습니다.');
+                }
+                
+                // 새로운 추억을 화면에 추가
+                addMemoryToUI(author, content, new Date());
+                
+                // 폼 초기화
+                document.getElementById('memoryForm').reset();
+                closeModal('memoryModal');
+                
+                alert('추억이 저장되었습니다.');
+                
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '저장';
+            }
+        });
+
+        // 추억을 화면에 추가하는 함수
+        function addMemoryToUI(author, content, date) {
+            const memoriesList = document.getElementById('memoriesList');
+            const memoryCard = document.createElement('div');
+            memoryCard.className = 'memory-card';
+            
+            const formattedDate = date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            memoryCard.innerHTML = `
+                <div class="memory-header">
+                    <div class="memory-author">${author}</div>
+                    <div class="memory-date">${formattedDate}</div>
+                </div>
+                <div class="memory-content">${content}</div>
+            `;
+            
+            // 새로운 추억을 맨 위에 추가
+            memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+        }
+
+        // 서버에서 추억 목록 불러오기
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/memories`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const memoriesList = document.getElementById('memoriesList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.memories.forEach(memory => {
+                        addMemoryToUI(
+                            memory.author || memory.email, 
+                            memory.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('추억 로드 실패:', error);
+            }
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('memoryModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === memoryModal) {
+                memoryModal.style.display = 'none';
+            }
+        }
+    </script>
