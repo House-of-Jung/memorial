@@ -1020,9 +1020,9 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
 
 // 사진을 화면에 추가하는 함수
 function addPhotoToUI(author, content, date, imageUrl=null) {
-    const photoList = document.getElementById('photoList');
-    const memoryCard = document.createElement('div');
-    memoryCard.className = 'photo-card';
+    const photoList = document.getElementById('photo-gallery');
+    const photoCard = document.createElement('div');
+    photoCard.className = 'photo-item';
     
     const formattedDate = date.toLocaleDateString('ko-KR', {
         year: 'numeric',
@@ -1031,6 +1031,9 @@ function addPhotoToUI(author, content, date, imageUrl=null) {
     });
     
     photoCard.innerHTML = `
+        <div class="photo-placeholder">
+
+
         <div class="photo-header">
             <div class="photo-author">${author}</div>
             <div class="photo-date">${formattedDate}</div>
@@ -1082,5 +1085,6 @@ function addPhotoToUI(author, content, date, imageUrl=null) {
 
 
     </script>
+<script src="photo-gallery.js"></script>
 </body>
 </html>
