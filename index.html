@@ -932,17 +932,6 @@
             }
         }
 
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);  // data:image/png;base64,... 형태
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
-
-
-
         // + 버튼 클릭 시 사진 추가 모달 표시
         document.getElementById('plusBtn1').addEventListener('click', function() {
             if (!currentUser) {
@@ -953,8 +942,46 @@ function fileToBase64(file) {
             document.getElementById('photoModal').style.display = 'block';
         });
 
-        // 사진 저장
+// Supabase 클라이언트 설정 (이미 설정되어 있다고 가정)
+// const { createClient } = supabase;
+// const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 파일을 Supabase Storage에 업로드하는 함수
+async function uploadImageToSupabase(file, fileName) {
+    try {
+        // 고유한 파일명 생성 (중복 방지)
+        const timestamp = Date.now();
+        const uniqueFileName = `${timestamp}_${fileName}`;
+        
+        // Supabase Storage에 업로드
+        const { data, error } = await supabaseClient.storage
+            .from('photos') // 'photos' 버킷 사용
+            .upload(uniqueFileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+        
+        if (error) {
+            throw error;
+        }
+        
+        // 공개 URL 가져오기
+        const { data: urlData } = supabaseClient.storage
+            .from('photos')
+            .getPublicUrl(uniqueFileName);
+        
+        return {
+            filePath: data.path,
+            publicUrl: urlData.publicUrl
+        };
+        
+    } catch (error) {
+        console.error('Supabase 이미지 업로드 오류:', error);
+        throw new Error('이미지 업로드에 실패했습니다: ' + error.message);
+    }
+}
+
+// 수정된 사진 업로드 폼 이벤트 핸들러
 document.getElementById('photoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -965,51 +992,53 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     const author = document.getElementById('authorName').value;
     const content = document.getElementById('photoContent').value;
-    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
+    const imageFile = document.getElementById('photoImage').files[0];
+    
+    if (!imageFile) {
+        alert('사진을 선택해주세요.');
+        return;
+    }
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = '저장 중...';
+    submitBtn.textContent = '업로드 중...';
     
     try {
-        let base64Image = null;
-        if (imageData) {
-            base64Image = await fileToBase64(imageData); 
-        }
-
-        const response = await fetch(`${API_BASE_URL}/upload-photo`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.token}`
-            },
-            body: JSON.stringify({
-                imageData: base64Image,  // 이미지 문자열로 전송
-                fileName: imageData.name,
-                caption: content,
-                uploader_name: author
-                
-            })
-        });
+        // 1. Supabase Storage에 이미지 업로드
+        const uploadResult = await uploadImageToSupabase(imageFile, imageFile.name);
         
-
-
-
-
-        const data = await response.json();
+        // 2. 데이터베이스에 사진 정보 저장
+        const { data: photoData, error: dbError } = await supabaseClient
+            .from('photos')
+            .insert([
+                {
+                    uploader_name: author,
+                    caption: content,
+                    image_url: uploadResult.publicUrl,
+                    file_path: uploadResult.filePath,
+                    file_name: imageFile.name,
+                    file_size: imageFile.size,
+                    mime_type: imageFile.type,
+                    uploader_id: currentUser.id
+                }
+            ])
+            .select()
+            .single();
         
-        if (!response.ok) {
-            throw new Error(data.error || '사진 저장에 실패했습니다.');
+        if (dbError) {
+            throw dbError;
         }
         
-        // UI에 추가 (이미지 URL을 서버가 반환했다고 가정)
-        addPhotoToUI(author, content, new Date(), data.imageUrl);
+        // 3. UI에 새 사진 추가
+        addPhotoToUI(photoData);
         
+        // 4. 폼 리셋 및 모달 닫기
         document.getElementById('photoForm').reset();
         closeModal('photoModal');
-        alert('사진이 저장되었습니다.');
+        alert('사진이 성공적으로 업로드되었습니다.');
         
     } catch (error) {
+        console.error('사진 업로드 오류:', error);
         alert('오류가 발생했습니다: ' + error.message);
     } finally {
         submitBtn.disabled = false;
@@ -1017,8 +1046,8 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     }
 });
 
+// UI에 사진 추가하는 함수 (수정됨)
 function addPhotoToUI(photo) {
-    // 실제 사이트 구조에 맞게 수정
     const photoList = document.querySelector('.photo-gallery');
     
     if (!photoList) {
@@ -1037,11 +1066,12 @@ function addPhotoToUI(photo) {
     });
     
     photoCard.innerHTML = `
-        <div class="photo-placeholder">
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjY2NjIi8+Cjwvc3ZnPgo=" 
-                  alt="${photo.caption || '추억 사진'}" 
-                  style="opacity: 0.3;"
-                  data-photo-id="${photo.id}">
+        <div class="photo-container">
+            <img src="${photo.image_url}" 
+                 alt="${photo.caption || '추억 사진'}" 
+                 class="photo-image"
+                 loading="lazy"
+                 onclick="openPhotoModal(this.closest('.photo-item').dataset.photoId)">
         </div>
         <div class="photo-header">
             <div class="photo-author">${photo.uploader_name || '익명'}</div>
@@ -1052,68 +1082,20 @@ function addPhotoToUI(photo) {
     
     // 사진 목록 맨 위에 추가
     photoList.insertBefore(photoCard, photoList.firstChild);
-    
-    // 실제 이미지 데이터를 비동기로 로드
-    loadImageForPhoto(photo.id);
 }
 
-// 특정 사진의 실제 이미지 데이터를 로드하는 함수
-async function loadImageForPhoto(photoId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/photos/${photoId}`);
-        
-        if (!response.ok) {
-            throw new Error('이미지를 불러올 수 없습니다');
-        }
-        
-        const result = await response.json();
-        const imageData = result.photo.image_data;
-        
-        // 해당 사진 요소 찾기
-        const img = document.querySelector(`img[data-photo-id="${photoId}"]`);
-        
-        if (img && imageData) {
-            // 실제 이미지로 교체
-            img.src = imageData;
-            img.style.opacity = '1';
-            img.style.cursor = 'pointer';
-            
-            // 클릭 이벤트 추가 (확대보기)
-            img.onclick = function() {
-                openPhotoModal(result.photo, imageData);
-            };
-            
-            // 에러 처리
-            img.onerror = function() {
-                this.style.display = 'none';
-                this.parentElement.innerHTML = '<div class="photo-error">사진을 불러올 수 없습니다</div>';
-            };
-        }
-        
-    } catch (error) {
-        console.error(`사진 ${photoId} 로딩 오류:`, error);
-        
-        const img = document.querySelector(`img[data-photo-id="${photoId}"]`);
-        if (img) {
-            img.style.display = 'none';
-            img.parentElement.innerHTML = '<div class="photo-error">사진을 불러올 수 없습니다</div>';
-        }
-    }
-}
-
-// 모든 사진을 불러와서 UI에 추가하는 함수
+// 모든 사진 로드하는 함수 (수정됨)
 async function loadAllPhotos() {
     try {
-        const response = await fetch(`${API_BASE_URL}/photos`);
+        const { data: photos, error } = await supabaseClient
+            .from('photos')
+            .select('*')
+            .order('created_at', { ascending: false });
         
-        if (!response.ok) {
-            throw new Error('사진 목록을 가져올 수 없습니다');
+        if (error) {
+            throw error;
         }
         
-        const result = await response.json();
-        const photos = result.photos;
-        
-        // 실제 사이트 구조에 맞게 수정
         const photoList = document.querySelector('.photo-gallery');
         
         if (!photoList) {
@@ -1121,29 +1103,124 @@ async function loadAllPhotos() {
             return;
         }
         
-        // Supabase에서 가져온 사진들을 UI에 추가
+        // 기존 사진들 제거 (중복 방지)
+        photoList.innerHTML = '';
+        
+        // 사진들을 UI에 추가
         photos.forEach(photo => {
             addPhotoToUI(photo);
         });
         
+        console.log(`${photos.length}개의 사진을 로드했습니다.`);
+        
     } catch (error) {
         console.error('사진 목록 로딩 오류:', error);
+        alert('사진을 불러오는 중 오류가 발생했습니다: ' + error.message);
     }
 }
 
-// 사진 업로드 후 새로 추가된 사진을 UI에 즉시 반영
-function addNewPhotoToUI(newPhoto) {
-    addPhotoToUI(newPhoto);
+// 사진 모달 열기 함수
+async function openPhotoModal(photoId) {
+    try {
+        const { data: photo, error } = await supabaseClient
+            .from('photos')
+            .select('*')
+            .eq('id', photoId)
+            .single();
+        
+        if (error) {
+            throw error;
+        }
+        
+        // 모달 HTML 생성 및 표시
+        const modalHtml = `
+            <div id="photoViewModal" class="modal">
+                <div class="modal-content photo-modal-content">
+                    <span class="close" onclick="closeModal('photoViewModal')">&times;</span>
+                    <div class="photo-view-container">
+                        <img src="${photo.image_url}" alt="${photo.caption || '사진'}" class="photo-view-image">
+                        <div class="photo-view-info">
+                            <h3>${photo.uploader_name || '익명'}</h3>
+                            <p class="photo-view-date">${new Date(photo.created_at).toLocaleDateString('ko-KR')}</p>
+                            ${photo.caption ? `<p class="photo-view-caption">${photo.caption}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // 기존 모달 제거 후 새 모달 추가
+        const existingModal = document.getElementById('photoViewModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('photoViewModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('사진 상세보기 오류:', error);
+        alert('사진을 불러올 수 없습니다: ' + error.message);
+    }
 }
 
+// 사진 삭제 함수 (옵션)
+async function deletePhoto(photoId) {
+    if (!confirm('정말로 이 사진을 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    try {
+        // 1. 데이터베이스에서 사진 정보 가져오기
+        const { data: photo, error: fetchError } = await supabaseClient
+            .from('photos')
+            .select('file_path')
+            .eq('id', photoId)
+            .single();
+        
+        if (fetchError) {
+            throw fetchError;
+        }
+        
+        // 2. Storage에서 파일 삭제
+        const { error: storageError } = await supabaseClient.storage
+            .from('photos')
+            .remove([photo.file_path]);
+        
+        if (storageError) {
+            console.warn('Storage 파일 삭제 오류:', storageError);
+            // Storage 삭제 실패해도 DB 삭제는 진행
+        }
+        
+        // 3. 데이터베이스에서 레코드 삭제
+        const { error: dbError } = await supabaseClient
+            .from('photos')
+            .delete()
+            .eq('id', photoId);
+        
+        if (dbError) {
+            throw dbError;
+        }
+        
+        // 4. UI에서 사진 제거
+        const photoElement = document.querySelector(`[data-photo-id="${photoId}"]`);
+        if (photoElement) {
+            photoElement.remove();
+        }
+        
+        alert('사진이 삭제되었습니다.');
+        
+    } catch (error) {
+        console.error('사진 삭제 오류:', error);
+        alert('사진 삭제 중 오류가 발생했습니다: ' + error.message);
+    }
+}
 
-// 페이지 로드 시 모든 사진 불러오기 (안전한 방식)
+// 페이지 로드 시 사진들 불러오기
 document.addEventListener('DOMContentLoaded', function() {
-    // 페이지가 완전히 로드된 후 약간의 지연을 두고 실행
     setTimeout(() => {
         console.log('사진 로딩 시작...');
         
-        // 요소 존재 여부 다시 확인
         const photoGallery = document.querySelector('.photo-gallery');
         console.log('photo-gallery 요소:', photoGallery);
         
@@ -1151,18 +1228,90 @@ document.addEventListener('DOMContentLoaded', function() {
             loadAllPhotos();
         } else {
             console.error('.photo-gallery 요소를 찾을 수 없습니다. HTML 구조를 확인해주세요.');
-            
-            // 대안으로 photos ID 컨테이너에 직접 추가
-            const photosSection = document.getElementById('photos');
-            if (photosSection) {
-                console.log('photos 섹션을 찾았습니다. 여기에 추가합니다.');
-                loadAllPhotos();
-            }
         }
     }, 1000);
 });
 
-    </script>
+// CSS 스타일 추가 (필요한 경우)
+const photoStyles = `
+<style>
+.photo-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+}
+
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.photo-image:hover {
+    transform: scale(1.05);
+}
+
+.photo-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    font-size: 14px;
+}
+
+.photo-modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.photo-view-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.photo-view-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.photo-view-info {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.photo-view-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.photo-view-caption {
+    margin-top: 10px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .photo-container {
+        height: 150px;
+    }
+}
+</style>
+`;
+
+// 스타일을 head에 추가
+if (!document.querySelector('#photo-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'photo-styles';
+    styleElement.innerHTML = photoStyles.replace(/<\/?style>/g, '');
+    document.head.appendChild(styleElement);
+}    </script>
 
 </body>
 </html>
