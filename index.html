@@ -795,16 +795,29 @@
             // 토큰 저장
             localStorage.setItem('auth_token', data.access_token);
             localStorage.setItem('user_email', email);
-            
+            localStorage.setItem('access_token', data.access_token);
+
             currentUser = { token: data.access_token, email };
             updateAuthUI(true, email);
             closeModal('authModal');
+
+            // 자동 로그아웃 시작 (추가)
+            autoLogoutManager.onLoginSuccess();
             
             alert('로그인 성공!');
         }
 
         // 로그아웃
         function logout() {
+
+            // 자동 로그아웃 정리 (추가)
+            autoLogoutManager.onManualLogout();
+    
+            // 기존 로그아웃 처리
+            localStorage.removeItem('access_token');
+            location.reload();
+
+
             localStorage.removeItem('auth_token');
             localStorage.removeItem('user_email');
             currentUser = null;
@@ -1447,6 +1460,6 @@ if (!document.querySelector('#photo-styles')) {
 
 
 </script>
-
+<script src="auto-logout.js"></script>
 </body>
 </html>
