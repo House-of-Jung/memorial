@@ -909,21 +909,6 @@
             
             // 새로운 추억을 맨 위에 추가
             memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
-    
-  // 🔹 삭제 버튼 추가 부분
-    if (memoryData && memoryData.id) {
-        setTimeout(() => {
-            const memoryElement = document.querySelector(
-                `[data-memory-id="${memoryData.id}"]`
-            )?.closest(".memory-item, .photo-item");
-
-            if (memoryElement) {
-                const deleteManager = new DeleteManager(API_BASE_URL); // apiBaseUrl 필요
-                deleteManager.addDeleteButtonToMemory(memoryElement, memoryData);
-            }
-        }, 100);
-    }
-
         }
 
         // 서버에서 추억 목록 불러오기
@@ -1179,20 +1164,7 @@ function addPhotoToUI(photo) {
         };
         img.src = photo.image_url;
     }
-
-    // 🔹 삭제 버튼 추가 부분
-    setTimeout(() => {
-        const photoElement = document.querySelector(
-            `[data-photo-id="${photo.id}"]`
-        )?.closest(".photo-item");
-
-        if (photoElement) {
-            const deleteManager = new DeleteManager(API_BASE_URL); // apiBaseUrl 필요
-            deleteManager.addDeleteButtonToPhoto(photoElement, photo);
-        }
-    }, 100);
-
-  }
+}
 
 // 모든 사진 로드하는 함수
 async function loadAllPhotos() {

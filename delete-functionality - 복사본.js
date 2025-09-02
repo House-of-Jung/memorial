@@ -517,7 +517,51 @@ class DeleteManager {
     }
 }
 
+// 기존 코드와 통합하는 함수들
+function integrateDeleteFunctionality(apiBaseUrl) {
+    const deleteManager = new DeleteManager(apiBaseUrl);
+    
+    // 기존 addPhotoToUI 함수 확장
+    const originalAddPhotoToUI = window.addPhotoToUI;
+    if (originalAddPhotoToUI) {
+        window.addPhotoToUI = function(photo) {
+            const result = originalAddPhotoToUI(photo);
+            
+            // 삭제 버튼 추가
+            setTimeout(() => {
+                const photoElement = document.querySelector(`[data-photo-id="${photo.id}"]`)?.closest('.photo-item');
+                if (photoElement) {
+                    deleteManager.addDeleteButtonToPhoto(photoElement, photo);
+                }
+            }, 100);
+            
+            return result;
+        };
+    }
+    
+    // 기존 addMemoryToUI 함수 확장
+    const originalAddMemoryToUI = window.addMemoryToUI;
+    if (originalAddMemoryToUI) {
+        window.addMemoryToUI = function(author, content, date, memoryData) {
+            const result = originalAddMemoryToUI(author, content, date, memoryData);
+            
+            // 삭제 버튼 추가
+            if (memoryData && memoryData.id) {
+                setTimeout(() => {
+                    const memoryElement = document.querySelector(`[data-memory-id="${memoryData.id}"]`)?.closest('.memory-item, .photo-item');
+                    if (memoryElement) {
+                        deleteManager.addDeleteButtonToMemory(memoryElement, memoryData);
+                    }
+                }, 100);
+            }
+            
+            return result;
+        };
+    }
+    
+    return deleteManager;
+}
 
 // 전역으로 노출
-
+window.integrateDeleteFunctionality = integrateDeleteFunctionality;
 window.DeleteManager = DeleteManager;
