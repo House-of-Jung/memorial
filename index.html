@@ -1461,5 +1461,12 @@ if (!document.querySelector('#photo-styles')) {
 
 </script>
 <script src="auto-logout.js"></script>
+<script src="delete-functionality.js"></script>
+<script>
+    // 삭제 기능 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteManager = integrateDeleteFunctionality('https://your-worker-url.workers.dev');
+    });
+</script>
 </body>
 </html>
