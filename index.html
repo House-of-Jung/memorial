@@ -847,7 +847,9 @@
             const author = document.getElementById('authorName').value;
             const content = document.getElementById('memoryContent').value;
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            
+            const data = await response.json();
+
+
             submitBtn.disabled = true;
             submitBtn.textContent = '저장 중...';
             
@@ -871,7 +873,10 @@
                 }
                 
                 // 새로운 추억을 화면에 추가
-                addMemoryToUI(author, content, new Date());
+                addMemoryToUI(author, content, new Date(), , {
+                        id: data.id, // 서버에서 반환된 ID
+                        email: currentUser.email
+                });
                 
                 // 폼 초기화
                 document.getElementById('memoryForm').reset();
@@ -922,23 +927,22 @@ function addMemoryToUI(author, content, date, memoryData = null) {
     
     // 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
-        // 전역 API_BASE_URL 사용하거나 직접 입력
-        const API_BASE_URL = window.API_BASE_URL || 'https://your-worker-url.workers.dev';
-        
         // DeleteManager 존재 확인 후 삭제 버튼 추가
         if (typeof DeleteManager !== 'undefined') {
             try {
+                // 전역 API_BASE_URL 사용하거나 직접 입력
+                const API_BASE_URL = window.API_BASE_URL || 'https://your-worker-url.workers.dev';
                 const deleteManager = new DeleteManager(API_BASE_URL);
                 deleteManager.addDeleteButtonToMemory(memoryCard, memoryData);
                 console.log(`추억 ${memoryData.id}에 삭제 버튼 추가 완료`);
             } catch (error) {
-                console.error('삭제 버튼 추가 오류:', error);
+                console.error('DeleteManager 인스턴스 생성 또는 삭제 버튼 추가 오류:', error);
             }
-        } else {
-            console.error('DeleteManager 클래스를 찾을 수 없습니다');
         }
+        // DeleteManager가 없어도 오류 로그를 출력하지 않음 (선택적 기능이므로)
     }
 }
+
         // 서버에서 추억 목록 불러오기
         async function loadMemories() {
             try {
@@ -953,7 +957,12 @@ function addMemoryToUI(author, content, date, memoryData = null) {
                         addMemoryToUI(
                             memory.author || memory.email, 
                             memory.content, 
-                            new Date(memory.created_at)
+                            new Date(memory.created_at),
+                           {
+                               id: memory.id,
+                               email: memory.email || memory.author_email,
+                              // 필요한 다른 데이터들...
+                           }
                         );
                     });
                 }
