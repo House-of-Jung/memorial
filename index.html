@@ -849,7 +849,6 @@
             const submitBtn = e.target.querySelector('button[type="submit"]');
       
 
-
             submitBtn.disabled = true;
             submitBtn.textContent = '저장 중...';
             
@@ -924,11 +923,16 @@ function addMemoryToUI(author, content, date, memoryData = null) {
     
     // 새로운 추억을 맨 위에 추가
     memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
-    
+    console.log("11111");
+
     // 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
+    console.log("11211");
+
         // DeleteManager 존재 확인 후 삭제 버튼 추가
         if (typeof DeleteManager !== 'undefined') {
+    console.log("11311");
+
             try {
                 // 전역 API_BASE_URL 사용하거나 직접 입력
                 const API_BASE_URL = window.API_BASE_URL || 'https://your-worker-url.workers.dev';
