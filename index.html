@@ -910,20 +910,21 @@
             // 새로운 추억을 맨 위에 추가
             memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
     
-  // 🔹 삭제 버튼 추가 부분
+    // 🔹 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
         setTimeout(() => {
             const memoryElement = document.querySelector(
                 `[data-memory-id="${memoryData.id}"]`
             )?.closest(".memory-item, .photo-item");
-
+            
             if (memoryElement) {
-                const deleteManager = new DeleteManager(API_BASE_URL); // apiBaseUrl 필요
+                // 전역 API_BASE_URL 사용하거나 직접 입력
+                const API_BASE_URL = window.API_BASE_URL || 'https://your-worker-url.workers.dev';
+                const deleteManager = new DeleteManager(API_BASE_URL);
                 deleteManager.addDeleteButtonToMemory(memoryElement, memoryData);
             }
         }, 100);
     }
-
         }
 
         // 서버에서 추억 목록 불러오기
@@ -1181,18 +1182,34 @@ function addPhotoToUI(photo) {
         img.src = photo.image_url;
     }
 
-    // 🔹 삭제 버튼 추가 부분
-    setTimeout(() => {
-        const photoElement = document.querySelector(
-            `[data-photo-id="${photo.id}"]`
-        )?.closest(".photo-item");
-
-        if (photoElement) {
-            const deleteManager = new DeleteManager(API_BASE_URL); // apiBaseUrl 필요
-            deleteManager.addDeleteButtonToPhoto(photoElement, photo);
+// 🔹 수정된 삭제 버튼 추가 부분
+setTimeout(() => {
+    const photoElement = document.querySelector(
+        `[data-photo-id="${photo.id}"]`
+    )?.closest(".photo-item");
+    
+    if (photoElement) {
+        // API_BASE_URL 안전하게 가져오기
+        const API_BASE_URL = window.API_BASE_URL || 
+                           'https://your-worker-name.your-subdomain.workers.dev'; // 실제 Worker URL로 변경
+        
+        // DeleteManager가 존재하는지 확인
+        if (typeof DeleteManager === 'undefined') {
+            console.error('DeleteManager 클래스를 찾을 수 없습니다. delete-functionality.js 파일이 로드되었는지 확인하세요.');
+            return;
         }
-    }, 100);
-
+        
+        try {
+            const deleteManager = new DeleteManager(API_BASE_URL);
+            deleteManager.addDeleteButtonToPhoto(photoElement, photo);
+            console.log(`사진 ${photo.id}에 삭제 버튼 추가 완료`);
+        } catch (error) {
+            console.error('삭제 버튼 추가 오류:', error);
+        }
+    } else {
+        console.warn(`사진 요소를 찾을 수 없습니다: data-photo-id="${photo.id}"`);
+    }
+}, 100);
   }
 
 // 모든 사진 로드하는 함수
