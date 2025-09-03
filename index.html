@@ -887,46 +887,65 @@
             }
         });
 
-        // 추억을 화면에 추가하는 함수
-        function addMemoryToUI(author, content, date) {
-            const memoriesList = document.getElementById('memoriesList');
-            const memoryCard = document.createElement('div');
-            memoryCard.className = 'memory-card';
-            
-            const formattedDate = date.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            
-            memoryCard.innerHTML = `
-                <div class="memory-header">
-                    <div class="memory-author">${author}</div>
-                    <div class="memory-date">${formattedDate}</div>
-                </div>
-                <div class="memory-content">${content}</div>
-            `;
-            
-            // 새로운 추억을 맨 위에 추가
-            memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+function addMemoryToUI(author, content, date, memoryData = null) {
+    const memoriesList = document.getElementById('memoriesList');
     
+    if (!memoriesList) {
+        console.error('memoriesList 요소를 찾을 수 없습니다');
+        return;
+    }
+    
+    const memoryCard = document.createElement('div');
+    memoryCard.className = 'memory-card';
+    
+    // memoryData가 있으면 data-memory-id 속성 추가
+    if (memoryData && memoryData.id) {
+        memoryCard.setAttribute('data-memory-id', memoryData.id);
+    }
+    
+    const formattedDate = date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    memoryCard.innerHTML = `
+        <div class="memory-header">
+            <div class="memory-author">${author}</div>
+            <div class="memory-date">${formattedDate}</div>
+        </div>
+        <div class="memory-content">${content}</div>
+    `;
+    
+    // 새로운 추억을 맨 위에 추가
+    memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+
     // 🔹 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
         setTimeout(() => {
-            const memoryElement = document.querySelector(
-                `[data-memory-id="${memoryData.id}"]`
-            )?.closest(".memory-item, .photo-item");
+            // 방금 추가한 memoryCard를 직접 사용 (더 안전함)
+            const memoryElement = memoryCard;
             
             if (memoryElement) {
                 // 전역 API_BASE_URL 사용하거나 직접 입력
                 const API_BASE_URL = window.API_BASE_URL || 'https://your-worker-url.workers.dev';
-                const deleteManager = new DeleteManager(API_BASE_URL);
-                deleteManager.addDeleteButtonToMemory(memoryElement, memoryData);
+                
+                // DeleteManager 존재 확인
+                if (typeof DeleteManager !== 'undefined') {
+                    try {
+                        const deleteManager = new DeleteManager(API_BASE_URL);
+                        deleteManager.addDeleteButtonToMemory(memoryElement, memoryData);
+                        console.log(`추억 ${memoryData.id}에 삭제 버튼 추가 완료`);
+                    } catch (error) {
+                        console.error('삭제 버튼 추가 오류:', error);
+                    }
+                } else {
+                    console.error('DeleteManager 클래스를 찾을 수 없습니다');
+                }
             }
         }, 100);
     }
-        }
-
+}
         // 서버에서 추억 목록 불러오기
         async function loadMemories() {
             try {
