@@ -847,7 +847,7 @@
             const author = document.getElementById('authorName').value;
             const content = document.getElementById('memoryContent').value;
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            const data = await response.json();
+      
 
 
             submitBtn.disabled = true;
@@ -873,7 +873,7 @@
                 }
                 
                 // 새로운 추억을 화면에 추가
-                addMemoryToUI(author, content, new Date(), , {
+                addMemoryToUI(author, content, new Date(), {
                         id: data.id, // 서버에서 반환된 ID
                         email: currentUser.email
                 });
