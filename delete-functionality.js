@@ -37,7 +37,7 @@ getCurrentUserEmail() {
         if (currentUserEmail && memoryUserEmail && currentUserEmail === memoryUserEmail) {
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn memory-delete-btn';
-            deleteBtn.innerHTML = '🗑️';
+            deleteBtn.innerHTML = '🗑️XXXXX';
             deleteBtn.title = '삭제';
             deleteBtn.setAttribute('data-memory-id', memoryData.id);
             deleteBtn.setAttribute('data-type', 'memory');
@@ -60,7 +60,7 @@ addDeleteButtonToPhoto(photoElement, photoData) {
     if (currentUserEmail && photoUserEmail && currentUserEmail === photoUserEmail) {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn photo-delete-btn';
-        deleteBtn.innerHTML = '🗑️XXXXX';
+        deleteBtn.innerHTML = '🗑️';
         deleteBtn.title = '삭제';
         deleteBtn.setAttribute('data-photo-id', photoData.id);
         deleteBtn.setAttribute('data-type', 'photo');
