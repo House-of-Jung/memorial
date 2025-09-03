@@ -27,6 +27,10 @@ getCurrentUserEmail() {
     // 추억 항목에 삭제 버튼 추가
     addDeleteButtonToMemory(memoryElement, memoryData) {
         if (!this.isLoggedIn()) return;
+
+    console.log("✅ memoryElement:", memoryElement);
+    console.log("✅ memoryData:", memoryData);
+
         
         const currentUserEmail = this.getCurrentUserEmail();
         const memoryUserEmail = memoryData.email || memoryData.user_email;
