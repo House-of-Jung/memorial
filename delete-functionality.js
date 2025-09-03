@@ -26,28 +26,28 @@ getCurrentUserEmail() {
 
 
 
-    // 추억 항목에 삭제 버튼 추가
-    addDeleteButtonToMemory(memoryElement, memoryData) {
-        if (!this.isLoggedIn()) return;
-        
-        const currentUserEmail = this.getCurrentUserEmail();
-        const memoryUserEmail = memoryData.email || memoryData.user_email;
-        
-        // 본인이 작성한 글만 삭제 버튼 표시
-        if (currentUserEmail && memoryUserEmail && currentUserEmail === memoryUserEmail) {
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn memory-delete-btn';
-            deleteBtn.innerHTML = '🗑️XXXXX';
-            deleteBtn.title = '삭제';
-            deleteBtn.setAttribute('data-memory-id', memoryData.id);
-            deleteBtn.setAttribute('data-type', 'memory');
-            
-            // 메모리 요소의 상단 우측에 추가
-            memoryElement.style.position = 'relative';
-            memoryElement.appendChild(deleteBtn);
-        }
-    }
+// 수정된 addDeleteButtonToPhoto 메서드
+addDeleteButtonToPhoto(photoElement, photoData) {
+    if (!this.isLoggedIn()) return;
     
+    const currentUserEmail = this.getCurrentUserEmail();
+    // 사진의 경우 uploader_email이나 email 필드를 사용해야 함
+    const photoUserEmail = photoData.email || photoData.uploader_email;
+    
+    // 본인이 업로드한 사진만 삭제 버튼 표시
+    if (currentUserEmail && photoUserEmail && currentUserEmail === photoUserEmail) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn photo-delete-btn';
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = '삭제';
+        deleteBtn.setAttribute('data-photo-id', photoData.id);
+        deleteBtn.setAttribute('data-type', 'photo');
+        
+        // 사진 요소의 상단 우측에 추가
+        photoElement.style.position = 'relative';
+        photoElement.appendChild(deleteBtn);
+    }
+}
 // 수정된 addDeleteButtonToPhoto 메서드
 addDeleteButtonToPhoto(photoElement, photoData) {
     if (!this.isLoggedIn()) return;
@@ -318,7 +318,7 @@ addDeleteButtonToPhoto(photoElement, photoData) {
             }
             
             .photo-item:hover .delete-btn,
-            .memory-item:hover .delete-btn {
+            .memory-card:hover .delete-btn {
                 opacity: 1;
                 transform: scale(1);
             }
