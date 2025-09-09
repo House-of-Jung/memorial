@@ -1235,7 +1235,7 @@ setTimeout(() => {
         
         try {
             const deleteManager = new DeleteManager(API_BASE_URL);
-            deleteManager.addDeleteButtonToPhoto(photoCard, photoData);
+            deleteManager.addDeleteButtonToPhoto(photoElement, photoData);
             console.log(`사진 ${photo.id}에 삭제 버튼 추가 완료`);
         } catch (error) {
             console.error('삭제 버튼 추가 오류:', error);
