@@ -1176,9 +1176,7 @@ function addPhotoToUI(photo) {
             <div class="photo-loading">사진 로딩 중...</div>
         </div>
         <div class="photo-header">
-//            <div class="photo-author">${photo.uploader_name || '익명'}</div>
             <div class="photo-author">${photo.uploader_name}</div>
-
             <div class="photo-date">${formattedDate}</div>
         </div>
         ${photo.caption ? `<div class="photo-content">${photo.caption}</div>` : ''}
