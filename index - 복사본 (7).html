@@ -1136,10 +1136,7 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
         }
         
         // UI에 새 사진 추가
-        addPhotoToUI(data.photo, {
-                        id: data.id, // 서버에서 반환된 ID
-                        email: currentUser.email
-                });
+        addPhotoToUI(data.photo);
         
         document.getElementById('photoForm').reset();
         closeModal('photoModal');
@@ -1155,7 +1152,7 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
 });
 
 // UI에 사진 추가하는 함수
-function addPhotoToUI(photo, photoData = null) {
+function addPhotoToUI(photo) {
     const photoList = document.querySelector('.photo-gallery');
 
     
@@ -1215,7 +1212,9 @@ setTimeout(() => {
     
     if (photoElement) {
         // API_BASE_URL 안전하게 가져오기
-        const API_BASE_URL = window.API_BASE_URL
+        const API_BASE_URL = window.API_BASE_URL || 
+                           'https://your-worker-name.your-subdomain.workers.dev'; // 실제 Worker URL로 변경
+        
         // DeleteManager가 존재하는지 확인
         if (typeof DeleteManager === 'undefined') {
             console.error('DeleteManager 클래스를 찾을 수 없습니다. delete-functionality.js 파일이 로드되었는지 확인하세요.');
@@ -1259,12 +1258,7 @@ async function loadAllPhotos() {
         
         // 사진들을 UI에 추가
         photos.forEach(photo => {
-            addPhotoToUI(photo,                            {
-                               id: photo.id,
-                               email: photo.email || photo.author_email,
-                              // 필요한 다른 데이터들...
-                           }
-);
+            addPhotoToUI(photo);
         });
         
         console.log(`${photos.length}개의 사진을 로드했습니다.`);
