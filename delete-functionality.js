@@ -2,7 +2,7 @@
 // 삭제 기능 관리 클래스
 class DeleteManager {
     constructor(apiBaseUrl) {
-        this.API_BASE_URL = apiBaseUrl;
+        this.API_BASE_URL ='https://memorial-api.seliscos.workers.dev';
         this.init();
     }
     
@@ -39,7 +39,7 @@ getCurrentUserEmail() {
         if (currentUserEmail && memoryUserEmail && currentUserEmail === memoryUserEmail) {
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn memory-delete-btn';
-            deleteBtn.innerHTML = '🗑️XXXXX';
+            deleteBtn.innerHTML = '🗑️';
             deleteBtn.title = '삭제';
             deleteBtn.setAttribute('data-memory-id', memoryData.id);
             deleteBtn.setAttribute('data-type', 'memory');
