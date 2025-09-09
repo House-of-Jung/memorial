@@ -1269,7 +1269,12 @@ async function loadAllPhotos() {
         
         // 사진들을 UI에 추가
         photos.forEach(photo => {
-            addPhotoToUI(photo);
+            addPhotoToUI(photo,                            {
+                               id: photo.id,
+                               email: photo.email || photo.author_email,
+                              // 필요한 다른 데이터들...
+                           }
+);
         });
         
         console.log(`${photos.length}개의 사진을 로드했습니다.`);
