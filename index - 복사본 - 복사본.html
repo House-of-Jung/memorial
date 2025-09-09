@@ -282,8 +282,8 @@
 
         .add-photo-btn {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
+            bottom: 60px;
+            right: 60px;
             background: #e74c3c;
             color: white;
             border: none;
@@ -448,9 +448,9 @@
                 <div class="profile-photo-placeholder" style="display: none;">할아버지 사진</div>
             </div>
             <h1>할아버지를 그리며</h1>
-            <div class="dates">1926년 7월 26일 ~ 2024년 8월 25일</div>
+            <div class="dates">1930년 1월 1일 ~ 2024년 12월 31일</div>
             <div class="quote">
-                "죽으나 사나 독립적 능력으로 살았다. 하늘을 우러러 부끄러운 점이 없다. 악한 일 안하고 마음 편하게 죽으면 그것이 종교라고 생각한다."
+                "가족을 사랑하고, 이웃을 도우며, 성실하게 살아가는 것이 가장 큰 가치입니다."
             </div>
         </header>
 
@@ -479,7 +479,6 @@
 
 
             </div>
-        <button id="plusBtn" class="add-memory-btn">+</button>
         </div>
 
         <div id="photos" class="content-section">
@@ -510,8 +509,6 @@
                     <div class="photo-caption">텃밭에서 (2020년)</div>
                 </div>
             </div>
-        <button id="plusBtn1" class="add-photo-btn">+</button>
-
         </div>
 
         <div id="life" class="content-section">
@@ -579,7 +576,8 @@
             </div>
         </div>
 
-
+        <button id="plusBtn" class="add-memory-btn">+</button>
+        <button id="plusBtn1" class="add-photo-btn">-</button>
 
         <div class="footer">
             할아버지를 영원히 기억하며 사랑합니다.
@@ -655,6 +653,7 @@
             </form>
         </div>
     </div>
+
 
     <script>
         // Cloudflare Workers API 엔드포인트 (실제 URL로 변경 필요)
@@ -795,29 +794,16 @@
             // 토큰 저장
             localStorage.setItem('auth_token', data.access_token);
             localStorage.setItem('user_email', email);
-            localStorage.setItem('access_token', data.access_token);
-
+            
             currentUser = { token: data.access_token, email };
             updateAuthUI(true, email);
             closeModal('authModal');
-
-            // 자동 로그아웃 시작 (추가)
-            autoLogoutManager.onLoginSuccess();
             
             alert('로그인 성공!');
         }
 
         // 로그아웃
         function logout() {
-
-            // 자동 로그아웃 정리 (추가)
-            autoLogoutManager.onManualLogout();
-    
-            // 기존 로그아웃 처리
-            localStorage.removeItem('access_token');
-            location.reload();
-
-
             localStorage.removeItem('auth_token');
             localStorage.removeItem('user_email');
             currentUser = null;
@@ -847,8 +833,7 @@
             const author = document.getElementById('authorName').value;
             const content = document.getElementById('memoryContent').value;
             const submitBtn = e.target.querySelector('button[type="submit"]');
-      
-
+            
             submitBtn.disabled = true;
             submitBtn.textContent = '저장 중...';
             
@@ -872,10 +857,7 @@
                 }
                 
                 // 새로운 추억을 화면에 추가
-                addMemoryToUI(author, content, new Date(), {
-                        id: data.id, // 서버에서 반환된 ID
-                        email: currentUser.email
-                });
+                addMemoryToUI(author, content, new Date());
                 
                 // 폼 초기화
                 document.getElementById('memoryForm').reset();
@@ -891,58 +873,29 @@
             }
         });
 
-function addMemoryToUI(author, content, date, memoryData = null) {
-    const memoriesList = document.getElementById('memoriesList');
-    
-    if (!memoriesList) {
-        console.error('memoriesList 요소를 찾을 수 없습니다');
-        return;
-    }
-    
-    const memoryCard = document.createElement('div');
-    memoryCard.className = 'memory-card';
-    
-    // memoryData가 있으면 data-memory-id 속성 추가
-    if (memoryData && memoryData.id) {
-        memoryCard.setAttribute('data-memory-id', memoryData.id);
-    }
-    
-    const formattedDate = date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    memoryCard.innerHTML = `
-        <div class="memory-header">
-            <div class="memory-author">${author}</div>
-            <div class="memory-date">${formattedDate}</div>
-        </div>
-        <div class="memory-content">${content}</div>
-    `;
-    
-    // 새로운 추억을 맨 위에 추가
-    memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
-
-
-    // 삭제 버튼 추가 부분 (수정됨)
-    if (memoryData && memoryData.id) {
-
-        // DeleteManager 존재 확인 후 삭제 버튼 추가
-        if (typeof DeleteManager !== 'undefined') {
-            try {
-                // 전역 API_BASE_URL 사용하거나 직접 입력
-                const API_BASE_URL = window.API_BASE_URL || 'https://memorial-api.seliscos.workers.dev';
-                const deleteManager = new DeleteManager(API_BASE_URL);
-                deleteManager.addDeleteButtonToMemory(memoryCard, memoryData);
-                console.log(`추억 ${memoryData.id}에 삭제 버튼 추가 완료`);
-            } catch (error) {
-                console.error('DeleteManager 인스턴스 생성 또는 삭제 버튼 추가 오류:', error);
-            }
+        // 추억을 화면에 추가하는 함수
+        function addMemoryToUI(author, content, date) {
+            const memoriesList = document.getElementById('memoriesList');
+            const memoryCard = document.createElement('div');
+            memoryCard.className = 'memory-card';
+            
+            const formattedDate = date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            memoryCard.innerHTML = `
+                <div class="memory-header">
+                    <div class="memory-author">${author}</div>
+                    <div class="memory-date">${formattedDate}</div>
+                </div>
+                <div class="memory-content">${content}</div>
+            `;
+            
+            // 새로운 추억을 맨 위에 추가
+            memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
         }
-        // DeleteManager가 없어도 오류 로그를 출력하지 않음 (선택적 기능이므로)
-    }
-}
 
         // 서버에서 추억 목록 불러오기
         async function loadMemories() {
@@ -958,12 +911,7 @@ function addMemoryToUI(author, content, date, memoryData = null) {
                         addMemoryToUI(
                             memory.author || memory.email, 
                             memory.content, 
-                            new Date(memory.created_at),
-                           {
-                               id: memory.id,
-                               email: memory.email || memory.author_email,
-                              // 필요한 다른 데이터들...
-                           }
+                            new Date(memory.created_at)
                         );
                     });
                 }
@@ -985,6 +933,17 @@ function addMemoryToUI(author, content, date, memoryData = null) {
             }
         }
 
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);  // data:image/png;base64,... 형태
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+
+
         // + 버튼 클릭 시 사진 추가 모달 표시
         document.getElementById('plusBtn1').addEventListener('click', function() {
             if (!currentUser) {
@@ -995,90 +954,8 @@ function addMemoryToUI(author, content, date, memoryData = null) {
             document.getElementById('photoModal').style.display = 'block';
         });
 
+        // 사진 저장
 
-// 토큰 갱신 함수
-async function refreshUserToken() {
-    try {
-        if (!currentUser || !currentUser.refresh_token) {
-            throw new Error('리프레시 토큰이 없습니다');
-        }
-
-        const response = await fetch(`${API_BASE_URL}/refresh-token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                refresh_token: currentUser.refresh_token
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('토큰 갱신 실패');
-        }
-
-        const data = await response.json();
-        
-        // 새 토큰으로 업데이트
-        currentUser.token = data.access_token;
-        if (data.refresh_token) {
-            currentUser.refresh_token = data.refresh_token;
-        }
-        
-        // 로컬 스토리지에도 업데이트
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        
-        return currentUser.token;
-    } catch (error) {
-        console.error('토큰 갱신 오류:', error);
-        // 갱신 실패 시 로그아웃 처리
-        localStorage.removeItem('currentUser');
-        currentUser = null;
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        // 로그인 페이지로 리다이렉트 또는 로그인 모달 표시
-        throw error;
-    }
-}
-
-// 인증이 필요한 API 호출을 위한 헬퍼 함수
-async function authenticatedFetch(url, options = {}) {
-    try {
-        // 첫 번째 시도
-        let response = await fetch(url, {
-            ...options,
-            headers: {
-                ...options.headers,
-                'Authorization': `Bearer ${currentUser.token}`
-            }
-        });
-
-        // 401 오류이고 리프레시 토큰이 있으면 토큰 갱신 시도
-        if (response.status === 401 && currentUser?.refresh_token) {
-            console.log('토큰 만료 감지, 갱신 시도');
-            
-            try {
-                await refreshUserToken();
-                
-                // 갱신된 토큰으로 재시도
-                response = await fetch(url, {
-                    ...options,
-                    headers: {
-                        ...options.headers,
-                        'Authorization': `Bearer ${currentUser.token}`
-                    }
-                });
-            } catch (refreshError) {
-                throw new Error('토큰 갱신 실패');
-            }
-        }
-
-        return response;
-    } catch (error) {
-        throw error;
-    }
-}
-
-// 수정된 사진 업로드 폼 이벤트 핸들러
 document.getElementById('photoForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -1089,61 +966,51 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     
     const author = document.getElementById('authorName').value;
     const content = document.getElementById('photoContent').value;
-    const imageFile = document.getElementById('photoImage').files[0];
-    
-    if (!imageFile) {
-        alert('사진을 선택해주세요.');
-        return;
-    }
+    const imageData = document.getElementById('photoImage').files[0];  // 파일 선택된 것 가져오기
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = '업로드 중...';
+    submitBtn.textContent = '저장 중...';
     
     try {
-        // 디버깅 정보
-        console.log('API_BASE_URL:', API_BASE_URL);
-        console.log('Upload URL:', `${API_BASE_URL}/upload-photo`);
-        console.log('Current User:', currentUser);
-        
-        // FormData 사용해서 파일 전송
-        const formData = new FormData();
-        formData.append('image', imageFile);
-        formData.append('caption', content);
-        formData.append('uploader_name', author);
-        
-        // 인증이 필요한 요청이므로 authenticatedFetch 사용
-        const response = await authenticatedFetch(`${API_BASE_URL}/upload-photo`, {
+        let base64Image = null;
+        if (imageData) {
+            base64Image = await fileToBase64(imageData); 
+        }
+
+        const response = await fetch(`${API_BASE_URL}/upload-photo`, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentUser.token}`
+            },
+            body: JSON.stringify({
+                imageData: base64Image,  // 이미지 문자열로 전송
+                fileName: imageData.name,
+                caption: content,
+                uploader_name: author
+                
+            })
         });
         
-        console.log('Response status:', response.status);
-        console.log('Response headers:', [...response.headers.entries()]);
-        
-        // 응답이 JSON인지 확인
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const textResponse = await response.text();
-            console.error('Non-JSON response:', textResponse);
-            throw new Error(`서버 응답이 JSON이 아닙니다: ${textResponse}`);
-        }
-        
+
+
+
+
         const data = await response.json();
         
         if (!response.ok) {
             throw new Error(data.error || '사진 저장에 실패했습니다.');
         }
         
-        // UI에 새 사진 추가
-        addPhotoToUI(data.photo);
+        // UI에 추가 (이미지 URL을 서버가 반환했다고 가정)
+        addPhotoToUI(author, content, new Date(), data.imageUrl);
         
         document.getElementById('photoForm').reset();
         closeModal('photoModal');
-        alert('사진이 성공적으로 업로드되었습니다.');
+        alert('사진이 저장되었습니다.');
         
     } catch (error) {
-        console.error('사진 업로드 오류:', error);
         alert('오류가 발생했습니다: ' + error.message);
     } finally {
         submitBtn.disabled = false;
@@ -1151,395 +1018,73 @@ document.getElementById('photoForm').addEventListener('submit', async function(e
     }
 });
 
-// UI에 사진 추가하는 함수
-function addPhotoToUI(photo) {
-    const photoList = document.querySelector('.photo-gallery');
-
-    
-    if (!photoList) {
-        console.error('사진 갤러리 컨테이너(.photo-gallery)를 찾을 수 없습니다');
-        return;
-    }
-    
+// 사진을 화면에 추가하는 함수
+function addPhotoToUI(author, content, date, imageUrl=null) {
+    const photoList = document.getElementById('photo-gallery');
     const photoCard = document.createElement('div');
     photoCard.className = 'photo-item';
-    photoCard.setAttribute('data-photo-id', photo.id);
     
-    const formattedDate = new Date(photo.created_at).toLocaleDateString('ko-KR', {
+    const formattedDate = date.toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
     
     photoCard.innerHTML = `
-        <div class="photo-container">
-            <div class="photo-loading">사진 로딩 중...</div>
-        </div>
-        <div class="photo-header">
-//            <div class="photo-author">${photo.uploader_name || '익명'}</div>
-            <div class="photo-author">${photo.uploader_name}</div>
+        <div class="photo-placeholder">
 
+
+        <div class="photo-header">
+            <div class="photo-author">${author}</div>
             <div class="photo-date">${formattedDate}</div>
         </div>
-        ${photo.caption ? `<div class="photo-content">${photo.caption}</div>` : ''}
+        <div class="photo-content">${content}</div>
+        ${imageUrl ? `<div class="memory-image"><img src="${imageUrl}" alt="추억 사진"></div>` : ''}
     `;
     
-    // 사진 목록 맨 위에 추가
     photoList.insertBefore(photoCard, photoList.firstChild);
-    
-    // 이미지 로딩 (실제 URL이 있는 경우)
-    if (photo.image_url) {
-        const img = new Image();
-        img.onload = function() {
-            const container = photoCard.querySelector('.photo-container');
-            container.innerHTML = `
-                <img src="${photo.image_url}" 
-                     alt="${photo.caption || '추억 사진'}" 
-                     class="photo-image"
-                     onclick="openPhotoModal('${photo.id}')">
-            `;
-        };
-        img.onerror = function() {
-            const container = photoCard.querySelector('.photo-container');
-            container.innerHTML = '<div class="photo-error">사진을 불러올 수 없습니다</div>';
-        };
-        img.src = photo.image_url;
-    }
-
-// 🔹 수정된 삭제 버튼 추가 부분
-setTimeout(() => {
-    const photoElement = document.querySelector(
-        `[data-photo-id="${photo.id}"]`
-    )?.closest(".photo-item");
-    
-    if (photoElement) {
-        // API_BASE_URL 안전하게 가져오기
-        const API_BASE_URL = window.API_BASE_URL || 
-                           'https://your-worker-name.your-subdomain.workers.dev'; // 실제 Worker URL로 변경
-        
-        // DeleteManager가 존재하는지 확인
-        if (typeof DeleteManager === 'undefined') {
-            console.error('DeleteManager 클래스를 찾을 수 없습니다. delete-functionality.js 파일이 로드되었는지 확인하세요.');
-            return;
-        }
-        
-        try {
-            const deleteManager = new DeleteManager(API_BASE_URL);
-            deleteManager.addDeleteButtonToPhoto(photoElement, photo);
-            console.log(`사진 ${photo.id}에 삭제 버튼 추가 완료`);
-        } catch (error) {
-            console.error('삭제 버튼 추가 오류:', error);
-        }
-    } else {
-        console.warn(`사진 요소를 찾을 수 없습니다: data-photo-id="${photo.id}"`);
-    }
-}, 100);
-  }
-
-// 모든 사진 로드하는 함수
-async function loadAllPhotos() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/photos`);
-        
-        if (!response.ok) {
-            throw new Error('사진 목록을 가져올 수 없습니다');
-        }
-        
-        const result = await response.json();
-        const photos = result.photos;
-        
-        const photoList = document.querySelector('.photo-gallery');
-        
-        if (!photoList) {
-            console.error('사진 갤러리 컨테이너(.photo-gallery)를 찾을 수 없습니다');
-            return;
-        }
-        
-        // 기존 사진들 제거 (중복 방지)
-        photoList.innerHTML = '';
-        
-        // 사진들을 UI에 추가
-        photos.forEach(photo => {
-            addPhotoToUI(photo);
-        });
-        
-        console.log(`${photos.length}개의 사진을 로드했습니다.`);
-        
-    } catch (error) {
-        console.error('사진 목록 로딩 오류:', error);
-        alert('사진을 불러오는 중 오류가 발생했습니다: ' + error.message);
-    }
 }
 
-// 사진 상세보기 모달 열기 함수
-async function openPhotoModal(photoId) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/photos/${photoId}`);
-        
-        if (!response.ok) {
-            throw new Error('사진을 불러올 수 없습니다');
-        }
-        
-        const result = await response.json();
-        const photo = result.photo;
-        
-        // 모달 HTML 생성 및 표시
-        const modalHtml = `
-            <div id="photoViewModal" class="modal">
-                <div class="modal-content photo-modal-content">
-                    <span class="close" onclick="closeModal('photoViewModal')">&times;</span>
-                    <div class="photo-view-container">
-                        <img src="${photo.image_url}" alt="${photo.caption || '사진'}" class="photo-view-image">
-                        <div class="photo-view-info">
-                            <h3>${photo.uploader_name || '익명'}</h3>
-                            <p class="photo-view-date">${new Date(photo.created_at).toLocaleDateString('ko-KR')}</p>
-                            ${photo.caption ? `<p class="photo-view-caption">${photo.caption}</p>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // 기존 모달 제거 후 새 모달 추가
-        const existingModal = document.getElementById('photoViewModal');
-        if (existingModal) {
-            existingModal.remove();
-        }
-        
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.getElementById('photoViewModal').style.display = 'block';
-        
-    } catch (error) {
-        console.error('사진 상세보기 오류:', error);
-        alert('사진을 불러올 수 없습니다: ' + error.message);
-    }
-}
 
-// 사진 삭제 함수 (옵션)
-async function deletePhoto(photoId) {
-    if (!confirm('정말로 이 사진을 삭제하시겠습니까?')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/photos/${photoId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${currentUser.token}`
+        // 서버에서 사진 목록 불러오기
+        async function loadPhoto() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/photo`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const photo = document.getElementById('photoList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.photo.forEach(photo => {
+                        addMPhotoToUI(
+                            photo.author || photo.email, 
+                            photo.content, 
+                            new Date(memory.created_at)
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('사진 로드 실패:', error);
             }
-        });
-        
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.error || '사진 삭제에 실패했습니다');
         }
-        
-        // UI에서 사진 제거
-        const photoElement = document.querySelector(`[data-photo-id="${photoId}"]`);
-        if (photoElement) {
-            photoElement.remove();
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const authModal = document.getElementById('authModal');
+            const memoryModal = document.getElementById('photoModal');
+            
+            if (event.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (event.target === photoModal) {
+                photoModal.style.display = 'none';
+            }
         }
-        
-        alert('사진이 삭제되었습니다.');
-        
-    } catch (error) {
-        console.error('사진 삭제 오류:', error);
-        alert('사진 삭제 중 오류가 발생했습니다: ' + error.message);
-    }
-}
-
-// 페이지 로드 시 사진들 불러오기
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        console.log('사진 로딩 시작...');
-        
-        const photoGallery = document.querySelector('.photo-gallery');
-        console.log('photo-gallery 요소:', photoGallery);
-        
-        if (photoGallery) {
-            loadAllPhotos();
-        } else {
-            console.error('.photo-gallery 요소를 찾을 수 없습니다. HTML 구조를 확인해주세요.');
-        }
-    }, 1000);
-});
-
-// CSS 스타일 추가
-const photoStyles = `
-<style>
-.photo-item {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
-    max-width: 500px; /* 최대 너비 제한 */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.photo-container {
-    width: 100%;
-    height: 300px; /* 고정 높이로 일관성 유지 */
-    overflow: hidden;
-    background-color: #f5f5f5;
-    position: relative;
-}
-
-.photo-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 비율 유지하면서 영역에 맞춤 */
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    display: block;
-}
-
-.photo-image:hover {
-    transform: scale(1.02);
-}
-
-.photo-header {
-    padding: 12px 16px 8px;
-    border-bottom: 1px solid #eee;
-}
-
-.photo-author {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-}
-
-.photo-date {
-    color: #666;
-    font-size: 12px;
-    margin-top: 2px;
-}
-
-.photo-content {
-    padding: 12px 16px;
-    line-height: 1.5;
-    color: #444;
-}
-
-.photo-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #999;
-    font-size: 14px;
-    background-color: #f8f8f8;
-}
-
-.photo-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #666;
-    font-size: 14px;
-    background-color: #f0f0f0;
-}
-
-/* 모달 스타일 */
-.photo-modal-content {
-    max-width: 90vw;
-    max-height: 90vh;
-    padding: 20px;
-}
-
-.photo-view-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.photo-view-image {
-    max-width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.photo-view-info {
-    margin-top: 20px;
-    text-align: center;
-    max-width: 500px;
-}
-
-.photo-view-info h3 {
-    margin: 0 0 8px 0;
-    color: #333;
-}
-
-.photo-view-date {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.photo-view-caption {
-    margin: 0;
-    font-style: italic;
-    color: #555;
-    line-height: 1.6;
-}
-
-/* 모바일 반응형 */
-@media (max-width: 768px) {
-    .photo-item {
-        margin: 0 10px 15px;
-        max-width: none;
-    }
-    
-    .photo-container {
-        height: 250px;
-    }
-    
-    .photo-modal-content {
-        margin: 20px;
-        max-width: calc(100vw - 40px);
-    }
-    
-    .photo-view-image {
-        max-height: 60vh;
-    }
-}
-
-@media (max-width: 480px) {
-    .photo-container {
-        height: 200px;
-    }
-    
-    .photo-view-image {
-        max-height: 50vh;
-    }
-}
-</style>
-`;
-
-// 스타일을 head에 추가
-if (!document.querySelector('#photo-styles')) {
-    const styleElement = document.createElement('style');
-    styleElement.id = 'photo-styles';
-    styleElement.innerHTML = photoStyles.replace(/<\/?style>/g, '');
-    document.head.appendChild(styleElement);
-}
 
 
 
-
-</script>
-<script src="./auto-logout.js"></script>
-<script src="./delete-functionality.js"></script>
-<script>
-console.log('JavaScript 파일이 로드되었습니다');
-    // 삭제 기능 초기화
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteManager = integrateDeleteFunctionality('https://your-worker-url.workers.dev');
-    });
-</script>
+    </script>
+<script src="photo-gallery.js"></script>
 </body>
 </html>
