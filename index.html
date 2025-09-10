@@ -1187,7 +1187,7 @@ function addPhotoToUI(photo, photoData = null) {
     
     // 사진 목록 맨 위에 추가
     photoList.insertBefore(photoCard, photoList.firstChild);
-    console.log(data-photo-id);
+
     // 이미지 로딩 (실제 URL이 있는 경우)
     if (photo.image_url) {
         const img = new Image();
@@ -1250,8 +1250,7 @@ async function loadAllPhotos() {
         photos.forEach(photo => {
             addPhotoToUI(photo,                            {
                                id: photo.id,
-                               email: photo.email || photo.author_email,
-                              // 필요한 다른 데이터들...
+                               email: photo.email || photo.author_email
                            }
 );
         });
@@ -1284,7 +1283,7 @@ async function openPhotoModal(photoId) {
                     <div class="photo-view-container">
                         <img src="${photo.image_url}" alt="${photo.caption || '사진'}" class="photo-view-image">
                         <div class="photo-view-info">
-                            <h3>${photo.uploader_name || '익명'}</h3>
+                            <h3>${photo.uploader_name}</h3>
                             <p class="photo-view-date">${new Date(photo.created_at).toLocaleDateString('ko-KR')}</p>
                             ${photo.caption ? `<p class="photo-view-caption">${photo.caption}</p>` : ''}
                         </div>
