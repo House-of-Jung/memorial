@@ -217,7 +217,7 @@ addDeleteButtonToPhoto(photoElement, photoData) {
     
     // UI에서 추억 제거
     removeMemoryFromUI(memoryId) {
-        const memoryElement = document.querySelector(`[data-memory-id="${memoryId}"]`)?.closest('.memory-card, .photo-item');
+        const memoryElement = document.querySelector(`[data-memory-id="${memoryId}"]`);
         if (memoryElement) {
             memoryElement.style.opacity = '0';
             memoryElement.style.transform = 'scale(0.9)';
