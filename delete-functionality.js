@@ -166,6 +166,9 @@ addDeleteButtonToPhoto(photoElement, photoData) {
             if (response.ok) {
                 this.showSuccessMessage('추억이 삭제되었습니다');
                 this.removeMemoryFromUI(memoryId);
+                setTimeout(() => {
+                     window.location.reload();                 
+                }, 500);
             } else {
                 this.showErrorMessage(result.error || '삭제 실패');
             }
