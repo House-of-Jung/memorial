@@ -1207,34 +1207,23 @@ function addPhotoToUI(photo, photoData = null) {
         img.src = photo.image_url;
     }
 
-// 🔹 수정된 삭제 버튼 추가 부분
-setTimeout(() => {
-    const photoElement = document.querySelector(
-        `[data-photo-id="${photo.id}"]`
-    )?.closest(".photo-item");
-    
-    if (photoElement) {
-        // API_BASE_URL 안전하게 가져오기
-        const API_BASE_URL = window.API_BASE_URL
-        // DeleteManager가 존재하는지 확인
-        if (typeof DeleteManager === 'undefined') {
-            console.error('DeleteManager 클래스를 찾을 수 없습니다. delete-functionality.js 파일이 로드되었는지 확인하세요.');
-            return;
-        }
-        
+if (photoData && photoData.id) {
+
+        // DeleteManager 존재 확인 후 삭제 버튼 추가
+    if (typeof DeleteManager !== 'undefined') {
         try {
+ const API_BASE_URL = window.API_BASE_URL || 'https://memorial-api.seliscos.workers.dev';
+
             const deleteManager = new DeleteManager(API_BASE_URL);
             deleteManager.addDeleteButtonToPhoto(photoCard, photo);
             console.log(`사진 ${photo.id}에 삭제 버튼 추가 완료`);
         } catch (error) {
             console.error('삭제 버튼 추가 오류:', error);
         }
-    } else {
-        console.warn(`사진 요소를 찾을 수 없습니다: data-photo-id="${photo.id}"`);
-    }
-}, 100);
-  }
-
+  
+     }
+ }
+}
 // 모든 사진 로드하는 함수
 async function loadAllPhotos() {
     try {
