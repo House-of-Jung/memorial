@@ -787,45 +787,24 @@
             }
         });
 
-// 디버깅을 위해 수정된 signUp 함수
-async function signUp(email, password) {
-    console.log('signUp 함수 호출됨');
-    console.log('API_BASE_URL:', API_BASE_URL);
-    console.log('요청 URL:', `${API_BASE_URL}/signup`);
-    
-    const requestOptions = {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-    };
-    
-    console.log('요청 옵션:', requestOptions);
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/signup`, requestOptions);
-        
-        console.log('응답 상태:', response.status);
-        console.log('응답 헤더:', [...response.headers.entries()]);
-        
-        const data = await response.json();
-        console.log('응답 데이터:', data);
-        
-        if (!response.ok) {
-            throw new Error(data.error || '회원가입에 실패했습니다.');
+        // 회원가입
+        async function signUp(email, password) {
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || '회원가입에 실패했습니다.');
+            }
+            
+            alert(data.message || '이메일 인증 링크가 발송되었습니다.');
+            closeModal('authModal');
+            toggleAuthMode(); // 다시 로그인 모드로 변경
         }
-        
-        alert(data.message || '이메일 인증 링크가 발송되었습니다.');
-        closeModal('authModal');
-        toggleAuthMode(); // 다시 로그인 모드로 변경
-    } catch (error) {
-        console.error('signUp 오류:', error);
-        throw error;
-    }
-}
-
 
         // 로그인 (Cloudflare Workers를 통해 Supabase와 통신)
         async function signIn(email, password) {
