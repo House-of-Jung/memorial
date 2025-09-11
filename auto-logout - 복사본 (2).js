@@ -461,15 +461,16 @@ class AutoLogoutManager {
 // 전역 인스턴스 생성
 const autoLogoutManager = new AutoLogoutManager();
 
-// 기존 로그인 함수와 연동 (개선된 버전)
+// 기존 로그인 함수와 연동
 function enhanceLoginFunction() {
     // 기존 로그인 성공 처리에 추가
     const originalLoginSuccess = window.onLoginSuccess || function() {};
     
     window.onLoginSuccess = function(response) {
-        console.log('로그인 성공 처리 시작');
+        // 로그인 시간 저장
+        localStorage.setItem('login_time', Date.now().toString());
         
-        // 자동 로그아웃 매니저에 로그인 성공 알림
+        // 자동 로그아웃 시작
         autoLogoutManager.onLoginSuccess();
         
         // 기존 로그인 성공 처리 실행
@@ -480,8 +481,6 @@ function enhanceLoginFunction() {
     const originalLogout = window.logout || function() {};
     
     window.logout = function() {
-        console.log('수동 로그아웃 실행');
-        
         // 자동 로그아웃 정리
         autoLogoutManager.onManualLogout();
         
@@ -511,19 +510,9 @@ function enhanceLoginFunction() {
     };
 }
 
-// 페이지 로드 시 지연 실행 (DOM이 완전히 로드된 후)
+// 페이지 로드 시 로그인 함수 강화
 document.addEventListener('DOMContentLoaded', function() {
-    // 약간의 지연을 두어 다른 스크립트들이 먼저 로드되도록
-    setTimeout(() => {
-        enhanceLoginFunction();
-        
-        // UI가 완전히 로드된 후 로그인 상태 확인
-        setTimeout(() => {
-            if (autoLogoutManager) {
-                autoLogoutManager.checkLoginStatus();
-            }
-        }, 500);
-    }, 100);
+    enhanceLoginFunction();
 });
 
 // 전역 함수로 노출
