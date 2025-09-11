@@ -839,31 +839,23 @@
         }
 
         // 로그아웃
-// 개선된 로그아웃 함수
-function logout() {
-    // 자동 로그아웃 정리
-    if (typeof autoLogoutManager !== 'undefined') {
-        autoLogoutManager.onManualLogout();
-    }
+        function logout() {
 
-    // 모든 토큰 및 사용자 데이터 삭제
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_email');
-    localStorage.removeItem('user_data');
-    localStorage.removeItem('login_time');
-
-    // 전역 변수 초기화
-    currentUser = null;
-
-    // UI 업데이트
-    updateAuthUI(false);
-
-    // 페이지 새로고침
-    location.reload();
+            // 자동 로그아웃 정리 (추가)
+            autoLogoutManager.onManualLogout();
     
-    alert('로그아웃되었습니다.');
-}
+            // 기존 로그아웃 처리
+            localStorage.removeItem('access_token');
+            location.reload();
+
+
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            currentUser = null;
+            updateAuthUI(false);
+            location.reload();
+            alert('로그아웃되었습니다.');
+        }
 
         // + 버튼 클릭 시 추억 추가 모달 표시
         document.getElementById('plusBtn').addEventListener('click', function() {

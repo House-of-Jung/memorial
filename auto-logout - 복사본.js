@@ -1,4 +1,4 @@
-// 자동 로그아웃 시스템 (개선된 버전)
+// 자동 로그아웃 시스템
 class AutoLogoutManager {
     constructor() {
         this.timeoutId = null;
@@ -6,7 +6,6 @@ class AutoLogoutManager {
         this.LOGOUT_TIME = 30 * 60 * 1000; // 30분 (밀리초)
         this.WARNING_TIME = 5 * 60 * 1000; // 5분 전 경고 (밀리초)
         this.isLoggedIn = false;
-        this.countdownInterval = null; // 카운트다운 인터벌 추가
         
         this.init();
     }
@@ -48,14 +47,17 @@ class AutoLogoutManager {
         document.addEventListener('visibilitychange', () => {
             if (this.isLoggedIn) {
                 if (document.hidden) {
+                    // 페이지가 숨겨짐 (다른 탭으로 이동)
                     console.log('페이지가 숨겨졌습니다');
                 } else {
+                    // 페이지가 다시 보임
                     console.log('페이지가 다시 보입니다');
                     this.resetLogoutTimer();
                 }
             }
         });
         
+        // 창 포커스/블러 이벤트
         window.addEventListener('focus', () => {
             if (this.isLoggedIn) {
                 this.resetLogoutTimer();
@@ -104,10 +106,6 @@ class AutoLogoutManager {
             clearTimeout(this.warningTimeoutId);
             this.warningTimeoutId = null;
         }
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-            this.countdownInterval = null;
-        }
     }
     
     // 로그아웃 경고 표시
@@ -141,7 +139,7 @@ class AutoLogoutManager {
         document.body.style.overflow = 'hidden';
         
         // 카운트다운 업데이트
-        this.countdownInterval = setInterval(() => {
+        const countdownInterval = setInterval(() => {
             remainingTime--;
             const minutes = Math.floor(remainingTime / 60);
             const seconds = remainingTime % 60;
@@ -152,17 +150,20 @@ class AutoLogoutManager {
             }
             
             if (remainingTime <= 0) {
+                clearInterval(countdownInterval);
                 this.performAutoLogout();
             }
         }, 1000);
         
         // 이벤트 리스너
         document.getElementById('extend-session-btn').addEventListener('click', () => {
+            clearInterval(countdownInterval);
             this.resetLogoutTimer();
             this.hideLogoutWarning();
         });
         
         document.getElementById('logout-now-btn').addEventListener('click', () => {
+            clearInterval(countdownInterval);
             this.performAutoLogout();
         });
         
@@ -177,13 +178,9 @@ class AutoLogoutManager {
             warningModal.remove();
             document.body.style.overflow = '';
         }
-        if (this.countdownInterval) {
-            clearInterval(this.countdownInterval);
-            this.countdownInterval = null;
-        }
     }
     
-    // 자동 로그아웃 실행 (개선된 버전)
+    // 자동 로그아웃 실행
     performAutoLogout() {
         console.log('자동 로그아웃 실행');
         
@@ -191,63 +188,23 @@ class AutoLogoutManager {
         this.hideLogoutWarning();
         this.isLoggedIn = false;
         
-        // 토큰 및 사용자 데이터 삭제
+        // 토큰 삭제
         localStorage.removeItem('access_token');
-        localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
-        localStorage.removeItem('user_email');
-        localStorage.removeItem('login_time');
         
-        // 전역 currentUser 변수 초기화
-        if (typeof currentUser !== 'undefined') {
-            currentUser = null;
-        }
-        
-        // UI 업데이트 (기존 함수가 있다면 호출)
-        if (typeof updateAuthUI === 'function') {
-            updateAuthUI(false);
-        }
-        
-        // 로그아웃 알림 표시
+        // 로그아웃 알림
         this.showLogoutMessage();
         
-        // 로그아웃 처리 후 페이지 새로고침
+        // 페이지 새로고침 또는 로그인 페이지로 리다이렉트
         setTimeout(() => {
-            this.performLogoutCleanup();
-        }, 3000);
-    }
-    
-    // 로그아웃 정리 작업
-    performLogoutCleanup() {
-        // 현재 페이지가 로그인이 필요한 페이지인지 확인
-        const isLoginRequiredPage = this.checkIfLoginRequired();
-        
-        if (isLoginRequiredPage) {
-            // 로그인 페이지로 리다이렉트하거나 현재 페이지 새로고침
-            if (typeof redirectToLogin === 'function') {
-                redirectToLogin();
+            // 로그인 페이지가 있다면 리다이렉트
+            if (document.querySelector('.login-section, #login-form, .auth-section')) {
+                location.reload();
             } else {
+                // 아니면 현재 페이지 새로고침
                 location.reload();
             }
-        } else {
-            // 일반 페이지는 새로고침만
-            location.reload();
-        }
-    }
-    
-    // 로그인이 필요한 페이지인지 확인
-    checkIfLoginRequired() {
-        // 로그인이 필요한 요소들이 있는지 확인
-        const loginRequiredElements = [
-            '.user-profile',
-            '.dashboard',
-            '.my-page',
-            '[data-auth-required]'
-        ];
-        
-        return loginRequiredElements.some(selector => 
-            document.querySelector(selector)
-        );
+        }, 3000);
     }
     
     // 로그아웃 메시지 표시
@@ -270,7 +227,6 @@ class AutoLogoutManager {
     
     // 수동 로그아웃 시 호출
     onManualLogout() {
-        console.log('수동 로그아웃 처리');
         this.clearTimers();
         this.hideLogoutWarning();
         this.isLoggedIn = false;
@@ -477,36 +433,12 @@ function enhanceLoginFunction() {
         originalLoginSuccess(response);
     };
     
-    // 기존 로그아웃 함수와 연동 (개선된 버전)
+    // 기존 로그아웃 함수와 연동
     const originalLogout = window.logout || function() {};
     
     window.logout = function() {
-        // 자동 로그아웃 정리
         autoLogoutManager.onManualLogout();
-        
-        // 토큰 및 데이터 삭제
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_email');
-        localStorage.removeItem('login_time');
-        
-        // 전역 변수 초기화
-        if (typeof currentUser !== 'undefined') {
-            currentUser = null;
-        }
-        
-        // UI 업데이트
-        if (typeof updateAuthUI === 'function') {
-            updateAuthUI(false);
-        }
-        
-        // 기존 로그아웃 처리 실행
         originalLogout();
-        
-        // 페이지 새로고침
-        location.reload();
-        
-        alert('로그아웃되었습니다.');
     };
 }
 
@@ -517,16 +449,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 전역 함수로 노출
 window.autoLogoutManager = autoLogoutManager;
-
-// 디버깅용 함수 추가
-window.checkSessionInfo = function() {
-    console.log('현재 세션 정보:', autoLogoutManager.getSessionInfo());
-};
-
-// 테스트용 함수 (개발 환경에서만 사용)
-window.testAutoLogout = function(seconds = 10) {
-    console.log(`${seconds}초 후 자동 로그아웃 테스트`);
-    autoLogoutManager.LOGOUT_TIME = seconds * 1000;
-    autoLogoutManager.WARNING_TIME = Math.max(5000, (seconds - 5) * 1000);
-    autoLogoutManager.resetLogoutTimer();
-};
