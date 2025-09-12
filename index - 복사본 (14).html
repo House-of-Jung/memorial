@@ -1004,38 +1004,33 @@ function addMemoryToUI(author, content, date, memoryData = null) {
 }
 
         // 서버에서 추억 목록 불러오기
-// 서버에서 추억 목록 불러오기
-async function loadMemories() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/memories`);
-        const data = await response.json();
-        
-        if (response.ok && data.memories) {
-            const memoriesList = document.getElementById('memoriesList');
-            
-            // 날짜 기준으로 최신순 정렬 (내림차순)
-            const sortedMemories = data.memories.sort((a, b) => {
-                return new Date(b.created_at) - new Date(a.created_at);
-            });
-            
-            // 정렬된 추억들을 UI에 추가
-            sortedMemories.forEach(memory => {
-                addMemoryToUI(
-                    memory.author || memory.email, 
-                    memory.content, 
-                    new Date(memory.created_at),
-                   {
-                       id: memory.id,
-                       email: memory.email || memory.author_email,
-                      // 필요한 다른 데이터들...
-                   }
-                );
-            });
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/memories`);
+                const data = await response.json();
+                
+                if (response.ok && data.memories) {
+                    const memoriesList = document.getElementById('memoriesList');
+                    
+                    // 서버에서 가져온 추억들을 기존 추억들 뒤에 추가
+                    data.memories.forEach(memory => {
+                        addMemoryToUI(
+                            memory.author || memory.email, 
+                            memory.content, 
+                            new Date(memory.created_at),
+                           {
+                               id: memory.id,
+                               email: memory.email || memory.author_email,
+                              // 필요한 다른 데이터들...
+                           }
+                        );
+                    });
+                }
+            } catch (error) {
+                console.error('추억 로드 실패:', error);
+            }
         }
-    } catch (error) {
-        console.error('추억 로드 실패:', error);
-    }
-}
+
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {
             const authModal = document.getElementById('authModal');
