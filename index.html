@@ -1012,7 +1012,8 @@ async function loadMemories() {
         
         if (response.ok && data.memories) {
             const memoriesList = document.getElementById('memoriesList');
-            
+            memoriesList.innerHTML = ''; 
+
             // 날짜 기준으로 최신순 정렬 (내림차순)
             const sortedMemories = data.memories.sort((a, b) => {
                 return new Date(b.created_at) - new Date(a.created_at);
