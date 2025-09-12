@@ -616,7 +616,7 @@
                 </div>
                 <div style="text-align: center;">
                     <button type="submit" class="btn" id="authSubmitBtn">로그인</button>
-                    <button type="button" class="btn btn-secondary" id="authToggleBtn" onclick="toggleAuthMode()">회원가입</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleAuthMode()">회원가입</button>
                 </div>
             </form>
         </div>
@@ -734,22 +734,19 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-function toggleAuthMode() {
-    isSignUpMode = !isSignUpMode;
-    const title = document.getElementById('authTitle');
-    const submitBtn = document.getElementById('authSubmitBtn');
-    const toggleBtn = document.getElementById('authToggleBtn'); // 추가
-    
-    if (isSignUpMode) {
-        title.textContent = '회원가입';
-        submitBtn.textContent = '회원가입';
-        toggleBtn.textContent = '로그인'; // 추가
-    } else {
-        title.textContent = '로그인';
-        submitBtn.textContent = '로그인';
-        toggleBtn.textContent = '회원가입'; // 추가
-    }
-}
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const title = document.getElementById('authTitle');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            
+            if (isSignUpMode) {
+                title.textContent = '회원가입';
+                submitBtn.textContent = '회원가입';
+            } else {
+                title.textContent = '로그인';
+                submitBtn.textContent = '로그인';
+            }
+        }
 
         // 인증 폼 처리
         document.getElementById('authForm').addEventListener('submit', async function(e) {
