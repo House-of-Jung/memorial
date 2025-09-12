@@ -929,7 +929,7 @@ function logout() {
                 addMemoryToUI(author, content, new Date(), {
                         id: data.id, // 서버에서 반환된 ID
                         email: currentUser.email
-                }, true);
+                });
                 
                 // 폼 초기화
                 document.getElementById('memoryForm').reset();
@@ -945,7 +945,7 @@ function logout() {
             }
         });
 
-function addMemoryToUI(author, content, date, memoryData = null, isNewMemory = false) {
+function addMemoryToUI(author, content, date, memoryData = null) {
     const memoriesList = document.getElementById('memoriesList');
     
     if (!memoriesList) {
@@ -975,12 +975,9 @@ function addMemoryToUI(author, content, date, memoryData = null, isNewMemory = f
         <div class="memory-content">${content}</div>
     `;
     
-    // 새 글이면 맨 위에, 기존 글 로드시에는 순서대로 추가
-    if (isNewMemory) {
-        memoriesList.insertBefore(memoryCard, memoriesList.firstChild); // 맨 위에 추가
-    } else {
-        memoriesList.appendChild(memoryCard); // 순서대로 추가
-    }
+    // 새로운 추억을 맨 위에 추가
+    //memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+    memoriesList.appendChild(memoryCard); 
 
     // 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
@@ -1026,8 +1023,8 @@ async function loadMemories() {
                        id: memory.id,
                        email: memory.email || memory.author_email,
                       // 필요한 다른 데이터들...
-                   },
-                false);
+                   }
+                );
             });
         }
     } catch (error) {
