@@ -981,8 +981,8 @@ function addMemoryToUI(author, content, date, memoryData = null) {
     `;
     
     // 새로운 추억을 맨 위에 추가
-    memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
-
+    //memoriesList.insertBefore(memoryCard, memoriesList.firstChild);
+    memoriesList.appendChild(memoryCard); 
 
     // 삭제 버튼 추가 부분 (수정됨)
     if (memoryData && memoryData.id) {
@@ -1012,7 +1012,6 @@ async function loadMemories() {
         
         if (response.ok && data.memories) {
             const memoriesList = document.getElementById('memoriesList');
-            memoriesList.innerHTML = ''; 
 
             // 날짜 기준으로 최신순 정렬 (내림차순)
             const sortedMemories = data.memories.sort((a, b) => {
